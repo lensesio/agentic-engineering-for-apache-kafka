@@ -1,10 +1,10 @@
 # Contributing to Agentic Engineering for Apache Kafka
 
-First, thank you for considering a contribution. This repository is a community resource for engineers who run Apache Kafka in production, and it gets meaningfully better every time someone shares a skill, a subagent, a fix or an honest bug report. No single team has seen every Kafka problem, and the best skills in this repo will come from people who have lived through one and want to spare the next engineer the pain.
+First, thank you for considering a contribution. This repository is a community resource for engineers who run Apache Kafka in production, and it gets meaningfully better every time someone shares a skill, a fix or an honest bug report. No single team has seen every Kafka problem, and the best skills in this repo will come from people who have lived through one and want to spare the next engineer the pain.
 
-This document covers how to participate, whether you want to file an issue, propose a new skill, fix a typo or become a regular contributor.
+This document covers how to participate, whether you want to file an issue, propose a new Kafka skill, fix a typo or become a regular contributor.
 
-> **TL;DR.** Open an issue first for anything non-trivial, particularly a complex skill or subagent. Fork the repo, work on a topic branch, follow the [Skill Structure Conventions](#skill-structure-conventions) if you are touching a skill, and open a PR with a clear description and a test case. We aim to triage within a few working days.
+> **TL;DR.** Open an issue first for anything non-trivial, particularly a complex new skill. Fork the repo, work on a topic branch, follow the [Skill Structure Conventions](#skill-structure-conventions) if you are touching a skill, and open a PR with a clear description and a test case. We aim to triage within a few working days.
 
 ## Table of contents
 
@@ -12,7 +12,7 @@ This document covers how to participate, whether you want to file an issue, prop
 - [Ways to contribute](#ways-to-contribute)
 - [Before you start](#before-you-start)
 - [Reporting bugs](#reporting-bugs)
-- [Suggesting a new skill, subagent or feature](#suggesting-a-new-skill-subagent-or-feature)
+- [Suggesting a new skill or feature](#suggesting-a-new-skill-or-feature)
 - [Your first contribution](#your-first-contribution)
 - [Development workflow](#development-workflow)
 - [Skill structure conventions](#skill-structure-conventions)
@@ -35,7 +35,7 @@ There are many ways to help, and writing code is only one of them. All of these 
 - **Report a bug** — a skill that does not trigger, an MCP call that fails, a hook that misbehaves, broken docs.
 - **Improve documentation** — fix a typo, clarify a workflow step, add a worked example, expand a troubleshooting entry.
 - **Improve an existing skill** — better trigger phrases, more accurate audit thresholds, sharper remediation advice, additional reference material in `references/`, or new test cases in `references/test-cases.md`.
-- **Propose a new skill or subagent** — Schema Registry workflows, cluster upgrades, capacity planning, ACL audits, quota tuning, tiered storage review and many more are all good candidates.
+- **Propose a new Kafka skill** — Schema Registry workflows, cluster upgrades, capacity planning, ACL audits, quota tuning, tiered storage review, Kafka Streams or ksqlDB workflows, MirrorMaker review and many more are all good candidates.
 - **Add support for another Kafka MCP server** — the skills are observed against the [Lenses MCP server](https://github.com/lensesio/lenses-mcp), but variants for other Kafka MCP servers are very welcome. See [Adding a new MCP variant](#adding-a-new-mcp-variant).
 - **Share a real-world story** — if you used a skill in anger and learnt something, open an issue or a discussion. That signal directly improves the next iteration.
 - **Triage issues** — reproduce, label and link related issues. This is one of the highest-leverage things a community member can do.
@@ -45,7 +45,7 @@ There are many ways to help, and writing code is only one of them. All of these 
 For anything beyond a small fix, **please open or comment on an issue first**. This avoids duplicated effort and gives maintainers a chance to flag design constraints early. Specifically:
 
 - For **bug fixes that touch a single file or a docs typo**, you can go straight to a PR.
-- For **new skills, new subagents, new hooks, new MCP variants or changes to skill structure conventions**, please open an issue first describing the proposal. We will discuss approach, scope and where it fits in the existing surface, then you can implement with confidence.
+- For **new skills, new hooks, new MCP variants or changes to skill structure conventions**, please open an issue first describing the proposal. We will discuss approach, scope and where it fits in the existing surface, then you can implement with confidence.
 - For **breaking changes** to the structure of `.cursor/` or `.claude/`, the repo layout, or the Anthropic open-standard frontmatter, an issue is mandatory.
 
 If you are unsure which category your change falls into, open an issue and ask. We would rather have a short discussion up front than ask you to rework an otherwise good PR.
@@ -57,7 +57,7 @@ Use the [GitHub Issues](https://github.com/lensesio/agentic-engineering-for-apac
 A good bug report includes:
 
 1. **Environment** — Cursor or Claude Code (and version), OS, model in use (Sonnet, Opus, GPT, etc.), MCP server version where relevant.
-2. **Skill or subagent affected** — for example, `/kafka-topic-audit` or `code-reviewer`.
+2. **Skill affected** — for example, `/kafka-topic-audit`.
 3. **What you expected to happen.**
 4. **What actually happened**, including any agent output. Redact secrets, broker addresses and customer data before pasting.
 5. **Reproduction steps** — the exact prompt, the relevant repo state, and any MCP environment context.
@@ -65,7 +65,7 @@ A good bug report includes:
 
 If you can reproduce the issue with a minimal example, that triples the chance of a fast fix.
 
-## Suggesting a new skill, subagent or feature
+## Suggesting a new skill or feature
 
 Open a feature request issue and include:
 
@@ -133,10 +133,6 @@ To scaffold a new skill:
 4. Add the skill to the tables in `README.md`, `AGENTS.md` and `CLAUDE.md`.
 5. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) so you avoid the most common authoring mistakes (frontmatter, trigger phrases, over-triggering).
 
-### Adding a new subagent
-
-Subagents live in `.cursor/agents/` and `.claude/agents/`. As with skills, both trees are required. The Claude Code variant typically has additional configuration (explicit tool restrictions, model routing, persistent project memory). Use the existing subagents as templates.
-
 ### Adding a new MCP variant
 
 The Kafka skills are observed against the Lenses MCP server. If you maintain or use a different Kafka MCP server, contributions that add a working variant are very welcome. The recommended approach is:
@@ -164,17 +160,6 @@ All skills must follow the [Anthropic open standard for skills](https://resource
 The shared conventions apply to both the `.cursor/` and `.claude/` variants. The Claude Code variant may include additional fields (`allowed-tools`, `argument-hint`, `disable-model-invocation`, hooks-driven behaviour) and inline-bash pre-computation in workflow steps; the Cursor variant should not regress the descriptor quality just because Cursor exposes fewer fields. Body drift between the two variants should be limited to these tool-specific differences.
 
 For a fuller treatment, see the [Skill Structure Conventions](AGENTS.md#skill-structure-conventions) section in `AGENTS.md` and `CLAUDE.md`.
-
-### Subagent conventions
-
-Subagents use a different frontmatter shape from skills (they are not skills, and they do not load `references/`). The conventions are simpler:
-
-- **Common frontmatter**: `name` (kebab-case) and `description` with positive trigger phrases and a negative trigger ("Do NOT use for X").
-- **Claude Code-only frontmatter** (in `.claude/agents/<name>.md`): `tools` to restrict the tool surface, `model` for explicit model routing (typically `sonnet`), and `memory: project` for cross-session learning. None of these are read by Cursor.
-- **Body**: a clear persona statement (for example, "You are a Staff Engineer..."), the trigger conditions ("When invoked"), an explicit checklist or workflow, and an output format. Keep it focused: subagents do one thing well.
-- **Memory note**: Claude Code subagents typically include a one-line reminder to update agent memory as patterns emerge. Cursor variants omit this since Cursor subagents do not have project memory today.
-
-Subagents do not require `references/test-cases.md`. Triggering and functional behaviour can be exercised inline in the PR description with before/after transcripts.
 
 ## Testing your changes
 
@@ -232,7 +217,7 @@ None of these are personal — they are usually a sign that a short discussion i
 
 Use the prefixes already established in `AGENTS.md` and `CLAUDE.md`:
 
-- `feature/<short-description>` — new skill, subagent, hook or capability.
+- `feature/<short-description>` — new skill, hook or capability.
 - `fix/<short-description>` — bug fix.
 - `docs/<short-description>` — documentation-only change.
 - `refactor/<short-description>` — internal restructuring with no behaviour change.
@@ -249,7 +234,7 @@ We follow [Conventional Commits](https://www.conventionalcommits.org/):
 
 Common types:
 
-- `feat` — new skill, subagent, hook or capability.
+- `feat` — new skill, hook or capability.
 - `fix` — bug fix.
 - `docs` — documentation only.
 - `refactor` — internal change without behaviour change.
