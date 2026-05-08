@@ -2,7 +2,7 @@
 
 ## Project Overview
 
-Agentic Kafka engineering tools and utilities. This project provides tooling to help engineers work with Apache Kafka more effectively using AI assistance. It ships with pre-configured agent skills and subagents for both **Cursor** and **Claude Code**.
+Agentic Kafka engineering tools and utilities. This project provides tooling to help engineers work with Apache Kafka more effectively using AI assistance. It ships with pre-configured Kafka-specific agent skills for both **Cursor** and **Claude Code**.
 
 ## Tech Stack
 
@@ -32,48 +32,38 @@ Agentic Kafka engineering tools and utilities. This project provides tooling to 
 ├── docs/                    # Documentation
 ├── scripts/                 # Helper scripts
 ├── .cursor/
-│   ├── skills/
-│   │   ├── techdebt/                    # /techdebt skill
-│   │   │   └── references/              #   test-cases.md
-│   │   ├── commit-push-pr/              # /commit-push-pr skill
-│   │   │   └── references/              #   test-cases.md
-│   │   ├── kafka-topic-audit/           # Topic config audit
-│   │   │   └── references/              #   audit-rules.md, test-cases.md
-│   │   ├── kafka-consumer-lag/          # Consumer lag analysis
-│   │   │   └── references/              #   test-cases.md
-│   │   ├── kafka-perf-review/           # Performance review
-│   │   │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
-│   │   ├── kafka-schema-review/         # Schema evolution review
-│   │   │   └── references/              #   compatibility-rules.md, test-cases.md
-│   │   ├── kafka-security-audit/        # Security posture audit
-│   │   │   └── references/              #   security-properties.md, test-cases.md
-│   │   ├── kafka-connector-review/      # Kafka Connect config review
-│   │   │   └── references/              #   test-cases.md
-│   │   └── kafka-dlq-review/            # Dead letter queue review
-│   │       └── references/              #   test-cases.md
-│   └── agents/                          # Cursor subagents
+│   └── skills/
+│       ├── kafka-topic-audit/           # Topic config audit
+│       │   └── references/              #   audit-rules.md, test-cases.md
+│       ├── kafka-consumer-lag/          # Consumer lag analysis
+│       │   └── references/              #   test-cases.md
+│       ├── kafka-perf-review/           # Performance review
+│       │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
+│       ├── kafka-schema-review/         # Schema evolution review
+│       │   └── references/              #   compatibility-rules.md, test-cases.md
+│       ├── kafka-security-audit/        # Security posture audit
+│       │   └── references/              #   security-properties.md, test-cases.md
+│       ├── kafka-connector-review/      # Kafka Connect config review
+│       │   └── references/              #   test-cases.md
+│       └── kafka-dlq-review/            # Dead letter queue review
+│           └── references/              #   test-cases.md
 └── .claude/
     ├── settings.json                    # Hooks, permissions, effort level, spinner verbs
-    ├── skills/
-    │   ├── techdebt/                    # /techdebt skill
-    │   │   └── references/              #   test-cases.md
-    │   ├── commit-push-pr/              # /commit-push-pr skill
-    │   │   └── references/              #   test-cases.md
-    │   ├── kafka-topic-audit/           # Topic config audit
-    │   │   └── references/              #   audit-rules.md, test-cases.md
-    │   ├── kafka-consumer-lag/          # Consumer lag analysis
-    │   │   └── references/              #   test-cases.md
-    │   ├── kafka-perf-review/           # Performance review
-    │   │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
-    │   ├── kafka-schema-review/         # Schema evolution review
-    │   │   └── references/              #   compatibility-rules.md, test-cases.md
-    │   ├── kafka-security-audit/        # Security posture audit
-    │   │   └── references/              #   security-properties.md, test-cases.md
-    │   ├── kafka-connector-review/      # Kafka Connect config review
-    │   │   └── references/              #   test-cases.md
-    │   └── kafka-dlq-review/            # Dead letter queue review
-    │       └── references/              #   test-cases.md
-    └── agents/                          # Claude Code subagents
+    └── skills/
+        ├── kafka-topic-audit/           # Topic config audit
+        │   └── references/              #   audit-rules.md, test-cases.md
+        ├── kafka-consumer-lag/          # Consumer lag analysis
+        │   └── references/              #   test-cases.md
+        ├── kafka-perf-review/           # Performance review
+        │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
+        ├── kafka-schema-review/         # Schema evolution review
+        │   └── references/              #   compatibility-rules.md, test-cases.md
+        ├── kafka-security-audit/        # Security posture audit
+        │   └── references/              #   security-properties.md, test-cases.md
+        ├── kafka-connector-review/      # Kafka Connect config review
+        │   └── references/              #   test-cases.md
+        └── kafka-dlq-review/            # Dead letter queue review
+            └── references/              #   test-cases.md
 ```
 
 ## Skill Structure Conventions
@@ -92,16 +82,7 @@ All skills follow the [Anthropic open standard](https://resources.anthropic.com/
 - Each skill's metadata includes `approach` (problem-first or tool-first) and `patterns` (sequential-workflow, iterative-refinement, context-aware-selection, domain-intelligence)
 - General troubleshooting (upload errors, triggering issues, MCP connection failures, large context) is in `TROUBLESHOOTING.md` at the repo root; skill-specific troubleshooting is in each SKILL.md
 
-## Agent Skills and Subagents
-
-This project includes pre-configured agent workflows:
-
-### Skills
-
-- **`/techdebt`** - Run at the end of every session to find duplicated code, dead code, unused imports and refactoring opportunities. Reports findings by severity (critical/warning/suggestion). Accepts an optional path argument to scope the scan.
-- **`/commit-push-pr`** - Commit staged changes, push to remote and open a pull request in one step. Pre-computes git status and diff via inline bash for fast execution. Generates commit messages and PR descriptions from the diff.
-
-### Kafka Skills (powered by Lenses MCP)
+## Kafka Skills (powered by Lenses MCP)
 
 These skills require the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) to be connected. They use live cluster data combined with codebase inspection.
 
@@ -113,14 +94,7 @@ These skills require the [Lenses MCP server](https://github.com/lensesio/lenses-
 - **`/kafka-connector-review`** - Review Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. Validates configs against plugin schemas.
 - **`/kafka-dlq-review`** - Review dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment.
 
-### Subagents
-
-- **`code-reviewer`** - Staff Engineer code review. Evaluates architectural fit, system-wide impact, Kafka best practices and long-term maintainability. Provides prioritised feedback (critical/warning/suggestion). Uses persistent memory to track patterns across sessions.
-- **`test-writer`** - Generates comprehensive pytest test suites. Creates unit tests with Kafka client mocks and integration tests for Docker-based Kafka. Targets >80% coverage. Uses persistent memory to learn test patterns.
-- **`doc-writer`** - Generates Google-style docstrings, README files, module docs and inline comments. Ensures documentation stays in sync with code changes. Uses persistent memory to track documentation conventions.
-- **`code-simplifier`** - Simplifies and cleans up code after changes. Flattens nested conditionals, removes dead branches, consolidates duplicated logic. Preserves behavior. Uses persistent memory to learn codebase idioms.
-
-### Hooks and Settings
+## Hooks and Settings
 
 A shared `.claude/settings.json` is checked into git with:
 
