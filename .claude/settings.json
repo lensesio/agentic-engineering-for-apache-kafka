@@ -1,4 +1,5 @@
 {
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
   "effortLevel": "medium",
   "hooks": {
     "PostToolUse": [
@@ -7,7 +8,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "uv run ruff format --quiet $FILEPATH || true"
+            "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/ruff-format.sh"
           }
         ]
       }
@@ -36,27 +37,24 @@
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push *)",
-      "Bash(gh pr *)",
-      "Edit(src/**)",
-      "Edit(tests/**)",
-      "Edit(docs/**)",
-      "Write(src/**)",
-      "Write(tests/**)",
-      "Write(docs/**)"
+      "Bash(gh pr *)"
     ]
   },
-  "spinnerVerbs": [
-    "Committing offsets",
-    "Compacting topics",
-    "Consuming events",
-    "Coordinating consumers",
-    "Flushing buffers",
-    "Polling brokers",
-    "Producing messages",
-    "Rebalancing partitions",
-    "Resolving schemas",
-    "Serialising payloads",
-    "Subscribing to topics",
-    "Unsubscribing from topics"
-  ]
+  "spinnerVerbs": {
+    "mode": "append",
+    "verbs": [
+      "Committing offsets",
+      "Compacting topics",
+      "Consuming events",
+      "Coordinating consumers",
+      "Flushing buffers",
+      "Polling brokers",
+      "Producing messages",
+      "Rebalancing partitions",
+      "Resolving schemas",
+      "Serialising payloads",
+      "Subscribing to topics",
+      "Unsubscribing from topics"
+    ]
+  }
 }
