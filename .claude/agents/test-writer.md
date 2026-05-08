@@ -1,6 +1,6 @@
 ---
 name: test-writer
-description: Test writing specialist that generates comprehensive pytest-based test suites. Use when writing tests for new code, improving test coverage, or when the user asks to add or generate tests.
+description: Test writing specialist that generates comprehensive pytest-based test suites. Use when writing tests for new code, improving test coverage, or when the user asks to add or generate tests. Do NOT use to write or modify application code, run tests (use pytest directly) or fix unrelated failing tests.
 tools: Read, Grep, Glob, Bash, Write, Edit
 model: sonnet
 memory: project

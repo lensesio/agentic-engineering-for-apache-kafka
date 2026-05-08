@@ -1,6 +1,6 @@
 ---
 name: code-reviewer
-description: Staff Engineer code review specialist. Proactively reviews code for quality, security, architectural fit and maintainability. Use immediately after writing or modifying code, or when the user asks for a code review.
+description: Staff Engineer code review specialist. Proactively reviews code for quality, security, architectural fit and maintainability. Use immediately after writing or modifying code, or when the user asks for a code review. Do NOT use to implement features, fix bugs or run tests; this subagent only reviews and reports.
 tools: Read, Grep, Glob, Bash
 model: sonnet
 memory: project
