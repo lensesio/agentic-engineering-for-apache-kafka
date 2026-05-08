@@ -40,8 +40,8 @@ The skills follow the [Anthropic open standard for skills](https://resources.ant
 |---------|-------------|
 | **PostToolUse formatting** | Auto-runs `ruff format` after every file Write/Edit to catch formatting issues before CI. |
 | **Stop hook for verification** | Runs `ruff check` and `pytest` when the agent finishes a turn, providing the verification feedback loop that materially improves output quality. |
-| **Effort level** | Defaults to `medium`. Raise to `high` for deeper reasoning, or `max` if you are running Opus 4.6 and want maximum reasoning depth. |
-| **Pre-allowed permissions** | Wildcard patterns for safe commands (`uv run pytest *`, `Edit(src/**)`, `gh pr *`) to reduce permission prompts. |
+| **Effort level** | Defaults to `medium`. Raise to `high` for deeper reasoning, or `xhigh` if you are running Opus 4.6 and want maximum reasoning depth. |
+| **Pre-allowed permissions** | Wildcard patterns for safe commands (`uv run pytest *`, `uv run ruff *`, `gh pr *`) to reduce permission prompts. |
 | **Custom spinner verbs** | Kafka-themed spinner verbs ("Producing messages", "Committing offsets", etc.) for a little personality. |
 
 The example project ships with Python tooling (`uv`, `pytest`, `ruff`) because that is what the bundled hooks demonstrate. The skills themselves are language-agnostic; swap the hooks for your stack as needed.
@@ -238,7 +238,7 @@ How those ideas show up in this repo:
 
 **From the team tips.** Both `CLAUDE.md` and `AGENTS.md` are maintained with project conventions, coding standards and Kafka-specific patterns. Invest in them and update after every correction (tip #3). Skills are committed to the repo so the whole team benefits, rather than living in individual prompt history (tip #4). Each skill is sharply scoped with explicit trigger phrases and negative triggers so the right context loads at the right moment, keeping the agent's working context clean (tip #8).
 
-**From the customisation guide.** The default effort level is set explicitly so it can be tuned per workload (tip #2). Wildcard permission patterns like `Edit(src/**)` and `Bash(uv run pytest *)` pre-approve safe operations (tip #5). A Stop hook runs linting and tests when the agent finishes a turn, creating the verification feedback loop that materially improves output quality (tip #9). Kafka-themed spinner verbs make the tool feel like part of the team (tip #10). All settings are checked into `.claude/settings.json` so the whole team shares the same configuration (tip #12).
+**From the customisation guide.** The default effort level is set explicitly so it can be tuned per workload (tip #2). Wildcard permission patterns like `Bash(uv run pytest *)` and `Bash(gh pr *)` pre-approve safe operations (tip #5). A Stop hook runs linting and tests when the agent finishes a turn, creating the verification feedback loop that materially improves output quality (tip #9). Kafka-themed spinner verbs make the tool feel like part of the team (tip #10). All settings are checked into `.claude/settings.json` so the whole team shares the same configuration (tip #12).
 
 **From Anthropic's skill guide.** All skills follow the three-level progressive disclosure system (frontmatter → `SKILL.md` body → `references/`). Descriptions include trigger phrases so the agent knows when to load each skill, and frontmatter includes `license`, `metadata` (author, version, mcp-server) and `compatibility` fields per the open standard. Skills are categorised as `mcp-enhancement` and include negative triggers to prevent over-triggering. Each skill defines quantitative and qualitative success criteria, and workflow steps include validation gates that stop or adjust the workflow if a step produces unexpected results. Every skill has a `references/test-cases.md` with three layers: triggering tests, functional Given/When/Then scenarios, and performance baselines (tool calls, errors, user corrections with vs without the skill).
 

@@ -98,11 +98,11 @@ These skills require the [Lenses MCP server](https://github.com/lensesio/lenses-
 
 A shared `.claude/settings.json` is checked into git with:
 
-- **Effort level: high** - Maximum intelligence and token budget for every request.
-- **PostToolUse hook** - Auto-formats Python files with `ruff format` after every Write or Edit, catching the last 10% of formatting issues before CI.
-- **Stop hook** - Runs `ruff check` and `pytest` when Claude finishes a turn, providing a verification feedback loop that 2-3x result quality.
-- **Pre-allowed permissions** - Wildcard patterns for safe commands (`uv run pytest *`, `Edit(src/**)`, `gh pr *`) reduce permission prompts. Also pre-approves Edit/Write on `src/`, `tests/` and `docs/`.
-- **Custom spinner verbs** - Kafka-themed verbs for team personality ("Producing messages", "Committing offsets", etc).
+- **Effort level: medium** - Sensible default; raise to `high` or `xhigh` for deeper reasoning on harder tasks.
+- **PostToolUse hook** - Auto-formats Python files with `ruff format` after every Write or Edit (via `.claude/hooks/ruff-format.sh`, which reads `tool_input.file_path` from the hook stdin and skips non-Python files).
+- **Stop hook** - Runs `ruff check` and `pytest` when Claude finishes a turn, providing a verification feedback loop that materially improves result quality. No-op in this repo (no `src/` or `tests/`); active when `.claude/` is copied into a Python Kafka project.
+- **Pre-allowed permissions** - Wildcard patterns for safe commands (`uv run pytest *`, `uv run ruff *`, `git status *`, `gh pr *`) reduce permission prompts.
+- **Custom spinner verbs** - Kafka-themed verbs appended to the defaults ("Producing messages", "Committing offsets", etc).
 
 ## Setup
 
