@@ -1,62 +1,72 @@
 # 🌊 Agentic Engineering for Apache Kafka
 
-Drop-in agent skills that turn your code editor into a Kafka-aware engineering assistant. Audit topic configurations, diagnose consumer lag, review schema changes, catch security misconfigurations and ship code - all from a single prompt instead of 15 minutes of manual investigation.
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Skills compatible](https://img.shields.io/badge/skills-Anthropic%20open%20standard-7C3AED)](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
+[![Lenses MCP](https://img.shields.io/badge/Lenses%20MCP-required%20for%20Kafka%20skills-1ABC9C)](https://github.com/lensesio/lenses-mcp)
 
-Built on best practices from Boris Cherny (creator of Claude Code), sourced from his [personal workflow](https://x.com/bcherny/status/2007179832300581177), [team tips](https://x.com/bcherny/status/2017742741636321619) and [customisation guide](https://x.com/bcherny/status/2021699851499798911). Ships with pre-configured agent skills and subagents for both **Cursor** and **Claude Code**. The customisation tips are naturally only supported in **Claude Code**. 
+A drop-in collection of agent skills, subagents and editor configuration that turns Claude Code and Cursor into a Kafka-aware engineering assistant. Audit topic configurations, diagnose consumer lag, review schema changes, catch security misconfigurations and ship code, all from a single prompt instead of 15 minutes of manual investigation.
 
-I code day to day in **Python** hence it's 🐍-centric, i.e. use of `uv`, `pytest` and `ruff` in hooks. For best performance, use [Lenses (Free Community Edition)](https://lenses.io/community-edition) and [Lenses MCP Server](https://github.com/lensesio/lenses-mcp). 
+Maintained by [Lenses.io](https://lenses.io), the team that pioneered the developer experience for Apache Kafka. Agentic coding has shifted what that means, and making sure an AI agent actually knows how to handle Kafka is now part of the job.
 
-### Why MCP + Skills?
+Skills are structured Markdown files that tell an AI agent exactly how to approach a domain or task. Think of them as the expert briefing you would give a new engineer before they wrote their first line of Kafka code in your codebase. They are MCP-agnostic by design: every skill in this repo is observed against the [Lenses MCP Server](https://github.com/lensesio/lenses-mcp) (the recommended setup), but the structure is open and contributions for other Kafka MCP servers are welcome.
 
-The [Lenses MCP server](https://github.com/lensesio/lenses-mcp) gives Claude **access** to your live Kafka cluster data - topics, consumer groups, connectors, schemas and metrics. The skills in this repo teach Claude **expertise** - your team's best practices, audit thresholds, remediation playbooks and standard workflows. Together they enable AI-powered Kafka engineering where Claude doesn't just read your cluster, it knows what to look for and how to fix it.
+The quickest way to try the skills end-to-end is with the free [Lenses Community Edition](https://lenses.io/community-edition/), which ships with Lenses HQ, the MCP Server and a pre-configured single-broker Kafka cluster with demo data, ideal for local evaluation.
 
-> ⚠️ NOTE: One of the tips is to adjust the effort level to `high`, for deeper reasoning and higher token consumption, but you are not Boris so I have set this to `medium`. Please adjust this accordingly in `settings.json` and if you're using Opus 4.6 you can also go all in with `max`.
+## Why MCP + Skills?
+
+A Kafka MCP server gives agents **access** to your live cluster: topics, consumer groups, connectors, schemas and metrics. The skills in this repository teach agents **expertise**: your team's best practices, audit thresholds, remediation playbooks and standard workflows. Together they enable AI-powered Kafka engineering where the agent doesn't just read your cluster, it knows what to look for and how to fix it.
+
+Without skills, agents are confident generalists. They will write a consumer for the `orders` topic that compiles and runs but does not handle deserialization errors properly, set up DLQs correctly, or partition consumption sensibly for the topic's layout. Skills close the gap between code that runs in a demo and code that holds up in production.
+
+The skills follow the [Anthropic open standard for skills](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf), so they are portable across Claude Code, Cursor, Claude.ai and the Claude Messages API.
 
 ## What's Included
 
-### 📚 Agent Skills
+### 📚 General-purpose skills
 
-| Skill | Invocation | Description | Source |
-|-------|------------|-------------|--------|
-| **Techdebt** | `/techdebt` | Scans the codebase for TODO/FIXME/HACK comments, commented out code, duplicated code, unused imports, inconsistent patterns and refactoring opportunities. Run this at the end of every session. | [Team tip #4](https://x.com/bcherny/status/2017742748984742078) |
-| **Commit-Push-PR** | `/commit-push-pr` | Commits staged changes, pushes to remote and opens a PR in one step. Generates commit messages and PR descriptions from the diff. | [Personal tip #7](https://x.com/bcherny/status/2007179847949500714) |
+| Skill | Invocation | Description |
+|-------|------------|-------------|
+| **Techdebt** | `/techdebt` | Scans the codebase for TODO/FIXME/HACK comments, commented-out code, duplicated code, unused imports, inconsistent patterns and refactoring opportunities. Useful at the end of a coding session. |
+| **Commit-Push-PR** | `/commit-push-pr` | Commits staged changes, pushes to the remote and opens a PR in one step. Generates the commit message and PR description from the diff. |
 
-### 🌊 Kafka Skills (powered by [Lenses MCP](https://github.com/lensesio/lenses-mcp))
+### 🌊 Kafka skills (observed against [Lenses MCP](https://github.com/lensesio/lenses-mcp))
 
 | Skill | Invocation | Description | Frequency |
 |-------|------------|-------------|-----------|
 | **Topic Audit** | `/kafka-topic-audit` | Audits topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata. | Daily/weekly |
-| **Consumer Lag** | `/kafka-consumer-lag` | Analyses consumer group lag, diagnoses root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) and suggests remediation. | Daily/on-incident |
-| **Perf Review** | `/kafka-perf-review` | Reviews producer/consumer performance configs in both the live cluster and codebase. Flags un-tuned defaults, anti-patterns and missing best practices. | Per-change |
+| **Consumer Lag** | `/kafka-consumer-lag` | Analyses consumer group lag and diagnoses root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) with remediation suggestions. | Daily/on-incident |
+| **Perf Review** | `/kafka-perf-review` | Reviews producer/consumer performance configs in both the live cluster and the codebase. Flags un-tuned defaults, anti-patterns and missing best practices. | Per-change |
 | **Schema Review** | `/kafka-schema-review` | Reviews schema changes (Avro, Protobuf, JSON Schema) for compatibility, breaking changes, missing defaults, naming issues and schema drift. | Per-PR |
-| **Security Audit** | `/kafka-security-audit` | Audits authentication (SASL), encryption (SSL/TLS), secrets management and environment tier mismatches across codebase and cluster. | Monthly/pre-deploy |
+| **Security Audit** | `/kafka-security-audit` | Audits authentication (SASL), encryption (SSL/TLS), secrets management and environment-tier mismatches across codebase and cluster. | Monthly/pre-deploy |
 | **Connector Review** | `/kafka-connector-review` | Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. | Per-change |
 | **DLQ Review** | `/kafka-dlq-review` | Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment. | Periodic |
 
 ### 🤖 Subagents
 
-| Subagent | Role | Description | Source |
-|----------|------|-------------|--------|
-| **code-reviewer** | Staff Engineer | Reviews code changes for quality, security, architectural fit and Kafka best practices. Evaluates system-wide impact and long-term maintainability. | [Personal tip #8](https://x.com/bcherny/status/2007179850139000872) / [Team tip #8](https://x.com/bcherny/status/2017742755737555434) |
-| **test-writer** | Test Engineer | Generates comprehensive pytest test suites with Kafka client mocks for unit tests and Docker-based integration tests. Targets >80% coverage. | [Team tip #8](https://x.com/bcherny/status/2017742755737555434) |
-| **doc-writer** | Documentation Specialist | Generates Google-style docstrings, README files, module documentation and inline comments. Keeps docs in sync with code. | [Team tip #8](https://x.com/bcherny/status/2017742755737555434) |
-| **code-simplifier** | Code Cleanup | Simplifies code after changes - flattens nested conditionals, removes dead branches, consolidates duplicated logic. Preserves behavior. | [Personal tip #8](https://x.com/bcherny/status/2007179850139000872) |
+| Subagent | Role | Description |
+|----------|------|-------------|
+| **code-reviewer** | Staff Engineer | Reviews code changes for quality, security, architectural fit and Kafka best practices. Evaluates system-wide impact and long-term maintainability. |
+| **test-writer** | Test Engineer | Generates `pytest` test suites with Kafka client mocks for unit tests and Docker-based integration tests. Targets greater than 80% coverage. |
+| **doc-writer** | Documentation Specialist | Generates Google-style docstrings, README files, module documentation and inline comments. Keeps docs in sync with code. |
+| **code-simplifier** | Code Cleanup | Simplifies code after changes by flattening nested conditionals, removing dead branches and consolidating duplicated logic. Preserves behavior. |
 
-### 🪝 Hooks, Settings and Customisation (Claude Code)
+### 🪝 Hooks, settings and customisation (Claude Code)
 
-| Feature | Description | Source |
-|---------|-------------|--------|
-| **PostToolUse formatting** | Auto-runs `ruff format` after every file Write/Edit to catch formatting issues before CI. | [Personal tip #9](https://x.com/bcherny/status/2007179852047335529) |
-| **Stop hook for verification** | Runs `ruff check` and `pytest` when Claude finishes a turn, providing a feedback loop that 2-3x quality. | [Personal tip #13](https://x.com/bcherny/status/2007179861115511237) / [Customisation tip #9](https://x.com/bcherny/status/2021701059253874861) |
-| **Effort level: high** | Maximum intelligence and token budget for every request. Boris: "I use High for everything." | [Customisation tip #2](https://x.com/bcherny/status/2021699860869902424) |
-| **Pre-allowed permissions** | Wildcard patterns for safe commands (`uv run pytest *`, `Edit(src/**)`, `gh pr *`) reduce permission prompts. | [Personal tip #10](https://x.com/bcherny/status/2007179854077407667) / [Customisation tip #5](https://x.com/bcherny/status/2021700332292911228) |
-| **Custom spinner verbs** | Kafka-themed spinner verbs for team personality ("Producing messages", "Committing offsets", etc.). | [Customisation tip #10](https://x.com/bcherny/status/2021701145023197516) |
+| Feature | Description |
+|---------|-------------|
+| **PostToolUse formatting** | Auto-runs `ruff format` after every file Write/Edit to catch formatting issues before CI. |
+| **Stop hook for verification** | Runs `ruff check` and `pytest` when the agent finishes a turn, providing the verification feedback loop that materially improves output quality. |
+| **Effort level** | Defaults to `medium`. Raise to `high` for deeper reasoning, or `max` if you are running Opus 4.6 and want maximum reasoning depth. |
+| **Pre-allowed permissions** | Wildcard patterns for safe commands (`uv run pytest *`, `Edit(src/**)`, `gh pr *`) to reduce permission prompts. |
+| **Custom spinner verbs** | Kafka-themed spinner verbs ("Producing messages", "Committing offsets", etc.) for a little personality. |
 
-### Cursor and Claude Code Support
+The example project ships with Python tooling (`uv`, `pytest`, `ruff`) because that is what the bundled hooks demonstrate. The skills themselves are language-agnostic; swap the hooks for your stack as needed.
 
-Every skill and subagent is implemented for both Cursor and Claude Code. The customisations are only supported in Claude Code. 
+### Cursor and Claude Code support
 
-There is duplication but only because there is currently no standard for skills (it's like the wild west early MCP days) so each tool has its nuances:
+Every skill and subagent is implemented for both Cursor and Claude Code. The hooks, settings and customisation features above are Claude Code only.
+
+There is some duplication across the two trees because there is currently no shared on-disk standard for editor skills. Each tool has its own conventions:
 
 ```
 .cursor/                              .claude/
@@ -87,36 +97,34 @@ There is duplication but only because there is currently no standard for skills 
                                            └── code-simplifier.md
 ```
 
-The Claude Code variants include additional configuration: explicit tool restrictions, model routing (`sonnet`), persistent `memory: project` for cross-session learning, inline bash pre-computation in skills, PostToolUse + Stop hooks, effort level, wildcard permissions and custom spinner verbs, all configured in `.claude/settings.json`.
+The Claude Code variants include additional configuration: explicit tool restrictions, model routing (`sonnet`), persistent `memory: project` for cross-session learning, inline bash pre-computation in skills, PostToolUse and Stop hooks, effort level, wildcard permissions and custom spinner verbs, all configured in `.claude/settings.json`.
 
-All skills follow the [Anthropic open standard for skills](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) with progressive disclosure: frontmatter with trigger phrases, negative triggers and categorised metadata, a `references/` directory for detailed lookup tables and test cases loaded on demand, success criteria with quantitative and qualitative metrics, concrete usage examples, troubleshooting for common errors and validation gates between workflow steps.
+All skills follow the [Anthropic open standard for skills](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) with progressive disclosure: frontmatter with trigger phrases, negative triggers and categorised metadata; a `references/` directory for detailed lookup tables and test cases loaded on demand; success criteria with quantitative and qualitative metrics; concrete usage examples; troubleshooting for common errors; and validation gates between workflow steps.
 
 ## Quick Start
 
-### Installation
+### For Cursor
 
-#### For Cursor
+1. Copy `.cursor/` and `AGENTS.md` to your project root.
+2. If you plan to use the Kafka skills, configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in Cursor's MCP settings.
+3. Verify by asking: *"Run a topic audit on staging"* (or any environment name).
 
-1. Copy `.cursor/` and `AGENTS.md` to your project root
-2. If using Kafka skills, configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in Cursor's MCP settings
-3. Verify by asking: *"Run a topic audit on staging"* (or any environment name)
+### For Claude Code
 
-#### For Claude Code
+1. Copy `.claude/` and `CLAUDE.md` to your project root.
+2. If you plan to use the Kafka skills, configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in your Claude Code MCP settings.
+3. Verify by asking: *"Run a topic audit on staging"* (or any environment name).
 
-1. Copy `.claude/` and `CLAUDE.md` to your project root
-2. If using Kafka skills, configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in your Claude Code MCP settings
-3. Verify by asking: *"Run a topic audit on staging"* (or any environment name)
+### For Claude.ai
 
-#### For Claude.ai
+1. Download the individual skill folder you want (e.g. `kafka-topic-audit/`).
+2. Zip the folder.
+3. Open Claude.ai → Settings → Capabilities → Skills.
+4. Click "Upload skill" and select the zipped folder.
+5. Ensure your Lenses MCP server is connected (for Kafka skills).
+6. Verify by asking: *"Run a topic audit on staging"*.
 
-1. Download the individual skill folder you want (e.g. `kafka-topic-audit/`)
-2. Zip the folder
-3. Open Claude.ai > Settings > Capabilities > Skills
-4. Click "Upload skill" and select the zipped folder
-5. Ensure your Lenses MCP server is connected (for Kafka skills)
-6. Verify by asking: *"Run a topic audit on staging"*
-
-#### Via API
+### Via the Messages API
 
 For programmatic use cases (applications, agents, automated pipelines), skills can be added to Messages API requests via the `container.skills` parameter. See Anthropic's [Skills API Quickstart](https://docs.anthropic.com/en/docs/agents-and-tools/skills) for implementation details.
 
@@ -124,11 +132,11 @@ Having trouble? See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues (
 
 ## Using the Agentic Workflows
 
-### Skills
+### General-purpose skills
 
-#### Techdebt Slash Command
+#### Techdebt
 
-Run at the end of every coding session to find and eliminate technical debt:
+Run at the end of a coding session to find and eliminate technical debt:
 
 ```
 /techdebt        # Scan src/ and tests/
@@ -137,13 +145,13 @@ Run at the end of every coding session to find and eliminate technical debt:
 
 The skill produces a categorised report:
 
-- **Critical** - Must fix (duplicated logic, security issues)
-- **Warning** - Should fix (dead code, unused imports)
-- **Suggestion** - Consider improving (refactoring opportunities)
+- **Critical:** Must fix (duplicated logic, security issues)
+- **Warning:** Should fix (dead code, unused imports)
+- **Suggestion:** Consider improving (refactoring opportunities)
 
 #### Commit-Push-PR
 
-Ship code in one step - commit, push and open a PR:
+Ship code in one step: commit, push and open a PR.
 
 ```
 /commit-push-pr
@@ -151,14 +159,14 @@ Ship code in one step - commit, push and open a PR:
 
 The skill:
 
-- Pre-computes git status, current branch and diff (Claude Code uses inline bash)
-- Generates a conventional commit message from the diff
-- Pushes to remote (creating the branch if needed)
-- Opens a PR with a generated title and summary via `gh`
+- Pre-computes git status, current branch and diff (Claude Code uses inline bash).
+- Generates a conventional commit message from the diff.
+- Pushes to the remote (creating the branch if needed).
+- Opens a PR with a generated title and summary via `gh`.
 
-### Kafka Skills
+### Kafka skills
 
-These skills require the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) to be configured and connected to your Kafka environment. They combine live cluster data with codebase inspection.
+These skills need a Kafka MCP server connected to your environment. The reference data, examples and triggers are observed against the [Lenses MCP server](https://github.com/lensesio/lenses-mcp), which is the recommended setup; if you run a different Kafka MCP server, fork the relevant skill, swap the tool calls and consider opening a PR with the variant. The skills combine live cluster data with codebase inspection.
 
 #### Topic Audit
 
@@ -200,7 +208,7 @@ Review schema changes for compatibility:
 /kafka-schema-review <environment>
 ```
 
-Detects breaking changes, missing defaults, schema drift between repo and cluster and naming issues.
+Detects breaking changes, missing defaults, schema drift between repo and cluster, and naming issues.
 
 #### Security Audit
 
@@ -250,7 +258,7 @@ The reviewer evaluates:
 - Security (no hardcoded secrets, proper input validation)
 - Operational readiness (logging, error handling, retry logic)
 
-### Test Writer
+#### Test Writer
 
 Generate tests for new or changed code:
 
@@ -258,14 +266,9 @@ Generate tests for new or changed code:
 Use the test-writer to add tests for src/kafka/producer.py
 ```
 
-Produces:
+Produces `pytest`-based unit tests with Kafka client mocks, integration tests marked with `@pytest.mark.integration`, reusable fixtures in `tests/conftest.py`, and a coverage report targeting greater than 80%.
 
-- pytest-based unit tests with Kafka client mocks
-- Integration tests marked with `@pytest.mark.integration`
-- Reusable fixtures in `tests/conftest.py`
-- Coverage report targeting >80%
-
-### Doc Writer
+#### Doc Writer
 
 Generate or update documentation:
 
@@ -273,31 +276,21 @@ Generate or update documentation:
 Use the doc-writer to document src/kafka/
 ```
 
-Produces:
+Produces Google-style docstrings (Args, Returns, Raises, Example), module-level docstrings explaining purpose and typical usage, and README updates that reflect current code behaviour.
 
-- Google-style docstrings with Args, Returns, Raises and Example sections
-- Module-level docstrings explaining purpose and typical usage
-- README updates reflecting current code behavior
+#### Code Simplifier
 
-### Code Simplifier
-
-Run after completing a feature or fix to clean up the code:
+Run after a feature or fix to clean up the code:
 
 ```
 Use the code-simplifier to clean up my recent changes
 ```
 
-Performs:
-
-- Flattens deeply nested conditionals with early returns
-- Removes dead code branches and unnecessary intermediate variables
-- Consolidates duplicated logic into shared utilities
-- Preserves all external behavior (simplification only, no functional changes)
-- Runs tests after each significant change to verify correctness
+Flattens deeply nested conditionals with early returns, removes dead branches and unnecessary intermediate variables, consolidates duplicated logic into shared utilities, preserves all external behaviour, and runs the tests after each significant change to verify correctness.
 
 ## Conventions
 
-### Code Style
+### Code style
 
 - `snake_case` for functions, variables and file names
 - `PascalCase` for class names
@@ -308,8 +301,8 @@ Performs:
 
 ### Kafka
 
-- Topic names: `<domain>.<entity>.<event>` (e.g., `orders.payment.completed`)
-- Consumer group IDs: `<service-name>-<purpose>` (e.g., `analytics-order-processor`)
+- Topic names: `<domain>.<entity>.<event>` (e.g. `orders.payment.completed`)
+- Consumer group IDs: `<service-name>-<purpose>` (e.g. `analytics-order-processor`)
 - Explicit serialisers/deserialisers (no implicit defaults)
 - Idempotent producers where possible
 - Context managers for all producers and consumers
@@ -322,59 +315,54 @@ Performs:
 - Atomic, focused commits
 - Squash WIP commits before merging
 
-## Background: Agentic Engineering, Boris Cherny's Best Practices and Anthropic's Skill Guide
+## Engage with the community
 
-This repository is an example of Agentic Engineering, where AI agents handle implementation with engineering rigor under human oversight, as distinct from "vibe coding" where output goes unreviewed. The human directs, reviews and owns the codebase; the AI agents accelerate the work through pre-configured skills, subagents and workflows.
+- Join the Lenses Community on Slack via [launchpass.com/lensesio](https://launchpass.com/lensesio).
+- Browse [docs.lenses.io](https://docs.lenses.io/) for Lenses HQ and Lenses MCP documentation.
+- Try [Lenses Community Edition](https://lenses.io/community-edition/) for a zero-setup Kafka + Lenses environment to evaluate the skills against.
 
-It implements practices from three X posts by Boris Cherny (creator of Claude Code) and Anthropic's official [Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf):
+## Contributing
 
-- [Personal workflow](https://x.com/bcherny/status/2007179832300581177) (2 Jan 2026) - 13 tips on how Boris personally uses Claude Code
-- [Team tips](https://x.com/bcherny/status/2017742741636321619) (1 Feb 2026) - 10 tips from the Claude Code team
-- [Customisation guide](https://x.com/bcherny/status/2021699851499798911) (11 Feb 2026) - 12 tips on customising Claude Code
+No single team has seen every Kafka problem. The engineer running 200 topics on a multi-tenant cluster knows things we do not. The team that spent a month debugging a connector edge case has context that belongs in a skill file. If you have caught yourself coaching an agent through the same Kafka problem more than twice, that is a skill waiting to be written.
 
-### From the personal workflow
+We welcome contributions across all three of the engineer profiles these skills serve: data engineers (schemas, pipeline reliability, data quality), backend developers (clean produce/consume without getting buried in internals) and streaming developers (state, windowing, exactly-once). The Kafka surface is vast and these skills only scratch it. Kafka Streams, ksqlDB, MirrorMaker, deeper Schema Registry workflows, cluster upgrades, capacity planning, ACL audits, quota tuning and tiered storage review are all good candidates. PRs that add support for non-Lenses Kafka MCP servers are also welcome.
 
-- **Tip #7 - Slash commands for inner loops**: The `/commit-push-pr` skill automates commit, push and PR creation. Boris uses this "dozens of times every day."
-- **Tip #8 - Subagents for common workflows**: The `code-simplifier` subagent cleans up code after Claude finishes working, just like Boris's own `code-simplifier` agent.
-- **Tip #9 - PostToolUse hooks**: A formatting hook auto-runs `ruff format` after every file edit, catching the last 10% of formatting issues before CI.
-- **Tip #10 - Pre-allow safe permissions**: Common safe commands are pre-approved in `.claude/settings.json` to avoid unnecessary permission prompts.
-- **Tip #13 - Verification**: The single most important tip - always give the AI agent a way to verify its work. This is reflected in the test-writer and code-reviewer subagents and now in the Stop hook.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose a new skill or subagent, the structural conventions every skill follows (frontmatter, `references/`, test cases, dual `.cursor/` + `.claude/` variants), and what good first contributions look like. Bug reports, doc improvements and prompt-engineering tweaks are all welcome too. Open an issue or a PR.
 
-### From the team tips
+## Background and inspiration
 
-- **Tip #3 - Invest in CLAUDE.md / AGENTS.md**: Both memory files are maintained with project conventions, coding standards and Kafka-specific patterns. After every correction, update them so the AI agent doesn't repeat mistakes.
-- **Tip #4 - Create your own skills**: The `/techdebt` slash command runs at the end of every session to find and kill duplicated code. Skills are committed to git so the whole team benefits.
-- **Tip #8 - Use subagents**: Specialised subagents (`code-reviewer`, `test-writer`, `doc-writer`) offload specific tasks to keep the main agent's context window clean and focused. The code reviewer adopts a Staff Engineer persona per tip #2's advice of having "a second Claude review it as a staff engineer."
+This repository is an example of *agentic engineering*, where AI agents handle implementation with engineering rigor under human oversight, as distinct from "vibe coding" where output goes unreviewed. The human directs, reviews and owns the codebase; the agent accelerates the work through pre-configured skills, subagents and workflows.
 
-### From the customisation guide
+The structure and patterns draw on Anthropic's [Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) and on three sets of public tips from Boris Cherny, creator of Claude Code:
 
-- **Tip #2 - Effort level**: Set to "high" for maximum intelligence. Boris: "I use High for everything."
-- **Tip #5 - Wildcard permissions**: Use patterns like `Edit(src/**)` and `Bash(uv run pytest *)` to pre-approve safe operations with full wildcard syntax.
-- **Tip #9 - Hooks for verification**: A Stop hook runs linting and tests when Claude finishes a turn, creating the verification feedback loop that 2-3x result quality.
-- **Tip #10 - Custom spinner verbs**: Kafka-themed verbs ("Producing messages", "Committing offsets") make the tool feel personal to the team.
-- **Tip #12 - Check settings into git**: All settings live in `.claude/settings.json` so the whole team benefits from the same configuration.
+- [Personal workflow](https://x.com/bcherny/status/2007179832300581177): 13 tips on day-to-day Claude Code usage
+- [Team tips](https://x.com/bcherny/status/2017742741636321619): 10 tips from the Claude Code team
+- [Customisation guide](https://x.com/bcherny/status/2021699851499798911): 12 tips on customising Claude Code
 
-### From Anthropic's skill guide
+How those ideas show up in this repo:
 
-- **Chapter 1 - Fundamentals**: All skills follow the three-level progressive disclosure system (frontmatter -> SKILL.md body -> references/). Descriptions include trigger phrases so Claude knows when to load each skill. Frontmatter includes `license`, `metadata` (author, version, mcp-server) and `compatibility` fields per the open standard. Each skill has an Examples section and a Troubleshooting section.
-- **Chapter 2 - Planning and design**: Skills are categorised (`mcp-enhancement` for Kafka skills, `workflow-automation` for general skills) and include negative triggers to prevent over-triggering ("Do NOT use for X"). Each skill defines quantitative and qualitative success criteria. Workflow steps include expected output descriptions and validation gates - explicit checkpoints that stop or adjust the workflow if a step produces unexpected results.
-- **Chapter 3 - Testing and iteration**: Every skill has a `references/test-cases.md` with three testing layers: triggering tests (should/should not trigger query lists), functional tests (Given/When/Then scenarios) and performance baselines (tool calls, errors, user corrections with vs without the skill). These test cases support manual testing in Claude.ai, scripted testing in Claude Code and programmatic evaluation via the skills API.
-- **Chapter 4 - Distribution and sharing**: README follows the recommended distribution pattern - outcome-focused positioning ("turn your code editor into a Kafka-aware engineering assistant"), platform-specific installation guides (Cursor, Claude Code, Claude.ai, API) with verification steps and the MCP + Skills narrative explaining why both together are more valuable than either alone. Skills follow the open standard for portability across tools and platforms.
-- **Chapter 5 - Patterns and troubleshooting**: Each skill's metadata classifies its `approach` (problem-first or tool-first) and architecture `patterns` (sequential-workflow, iterative-refinement, context-aware-selection, domain-intelligence). A shared `TROUBLESHOOTING.md` covers general platform issues (upload errors, triggering problems, MCP connection failures, instructions not followed, large context) while each SKILL.md retains its own skill-specific troubleshooting section.
+**From the personal workflow.** The `/commit-push-pr` skill automates the inner loop of commit, push and PR creation (tip #7). The `code-simplifier` subagent cleans up after the agent finishes working (tip #8). A PostToolUse formatting hook runs `ruff format` after every edit to catch the last 10% of formatting issues before CI (tip #9). Common safe commands are pre-approved in `.claude/settings.json` to avoid unnecessary permission prompts (tip #10). Most importantly, the test-writer and code-reviewer subagents and the Stop hook all give the agent a way to verify its work — tip #13, the single most important tip.
+
+**From the team tips.** Both `CLAUDE.md` and `AGENTS.md` are maintained with project conventions, coding standards and Kafka-specific patterns. Invest in them and update after every correction (tip #3). The `/techdebt` skill runs at the end of a session and is committed to the repo so the whole team benefits (tip #4). Specialised subagents (`code-reviewer`, `test-writer`, `doc-writer`) offload specific tasks to keep the main agent's context window clean (tip #8). The `code-reviewer` adopts a Staff Engineer persona, picking up on tip #2's advice of having "a second Claude review it as a staff engineer."
+
+**From the customisation guide.** The default effort level is set explicitly so it can be tuned per workload (tip #2). Wildcard permission patterns like `Edit(src/**)` and `Bash(uv run pytest *)` pre-approve safe operations (tip #5). A Stop hook runs linting and tests when the agent finishes a turn, creating the verification feedback loop that materially improves output quality (tip #9). Kafka-themed spinner verbs make the tool feel like part of the team (tip #10). All settings are checked into `.claude/settings.json` so the whole team shares the same configuration (tip #12).
+
+**From Anthropic's skill guide.** All skills follow the three-level progressive disclosure system (frontmatter → `SKILL.md` body → `references/`). Descriptions include trigger phrases so the agent knows when to load each skill, and frontmatter includes `license`, `metadata` (author, version, mcp-server) and `compatibility` fields per the open standard. Skills are categorised (`mcp-enhancement` for Kafka skills, `workflow-automation` for general skills) and include negative triggers to prevent over-triggering. Each skill defines quantitative and qualitative success criteria, and workflow steps include validation gates that stop or adjust the workflow if a step produces unexpected results. Every skill has a `references/test-cases.md` with three layers: triggering tests, functional Given/When/Then scenarios, and performance baselines (tool calls, errors, user corrections with vs without the skill).
 
 ## Resources
 
-- [Anthropic - The Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
 - [Lenses MCP Server for Apache Kafka](https://github.com/lensesio/lenses-mcp)
-- [Lenses Community Edition](https://lenses.io/community-edition)
-- [Cursor Skills Documentation](https://cursor.com/docs/context/skills)
-- [Cursor Subagents Documentation](https://cursor.com/docs/context/subagents)
-- [Claude Code Skills Documentation](https://code.claude.com/docs/en/skills)
-- [Claude Code Subagents Documentation](https://code.claude.com/docs/en/sub-agents)
-- [Claude Code Settings Documentation](https://code.claude.com/docs/en/settings)
-- [Claude Code Hooks Documentation](https://code.claude.com/docs/en/hooks)
-- [Claude Code Permissions Documentation](https://code.claude.com/docs/en/permissions)
+- [Lenses Community Edition](https://lenses.io/community-edition/)
+- [Lenses documentation](https://docs.lenses.io/)
+- [Anthropic's Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
+- [Cursor Skills documentation](https://cursor.com/docs/context/skills)
+- [Cursor Subagents documentation](https://cursor.com/docs/context/subagents)
+- [Claude Code Skills documentation](https://code.claude.com/docs/en/skills)
+- [Claude Code Subagents documentation](https://code.claude.com/docs/en/sub-agents)
+- [Claude Code Settings documentation](https://code.claude.com/docs/en/settings)
+- [Claude Code Hooks documentation](https://code.claude.com/docs/en/hooks)
+- [Claude Code Permissions documentation](https://code.claude.com/docs/en/permissions)
 
 ## License
 
-[MIT](https://opensource.org/license/mit)
+Released under the [MIT License](LICENSE). See the `LICENSE` file for the full text.
