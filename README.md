@@ -26,13 +26,13 @@ The skills follow the [Anthropic open standard for skills](https://resources.ant
 
 | Skill | Invocation | Description | Frequency |
 |-------|------------|-------------|-----------|
-| **Topic Audit** | `/kafka-topic-audit` | Audits topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata. | Daily/weekly |
-| **Consumer Lag** | `/kafka-consumer-lag` | Analyses consumer group lag and diagnoses root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) with remediation suggestions. | Daily/on-incident |
-| **Perf Review** | `/kafka-perf-review` | Reviews producer/consumer performance configs in both the live cluster and the codebase. Flags un-tuned defaults, anti-patterns and missing best practices. | Per-change |
-| **Schema Review** | `/kafka-schema-review` | Reviews schema changes (Avro, Protobuf, JSON Schema) for compatibility, breaking changes, missing defaults, naming issues and schema drift. | Per-PR |
-| **Security Audit** | `/kafka-security-audit` | Audits authentication (SASL), encryption (SSL/TLS), secrets management and environment-tier mismatches across codebase and cluster. | Monthly/pre-deploy |
-| **Connector Review** | `/kafka-connector-review` | Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. | Per-change |
-| **DLQ Review** | `/kafka-dlq-review` | Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment. | Periodic |
+| **Topic Audit** | `/topic-audit` | Audits topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata. | Daily/weekly |
+| **Consumer Lag** | `/consumer-lag` | Analyses consumer group lag and diagnoses root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) with remediation suggestions. | Daily/on-incident |
+| **Perf Review** | `/perf-review` | Reviews producer/consumer performance configs in both the live cluster and the codebase. Flags un-tuned defaults, anti-patterns and missing best practices. | Per-change |
+| **Schema Review** | `/schema-review` | Reviews schema changes (Avro, Protobuf, JSON Schema) for compatibility, breaking changes, missing defaults, naming issues and schema drift. | Per-PR |
+| **Security Audit** | `/security-audit` | Audits authentication (SASL), encryption (SSL/TLS), secrets management and environment-tier mismatches across codebase and cluster. | Monthly/pre-deploy |
+| **Connector Review** | `/connector-review` | Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. | Per-change |
+| **DLQ Review** | `/dlq-review` | Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment. | Periodic |
 
 ### 🪝 Hooks, settings and customisation (Claude Code)
 
@@ -53,26 +53,31 @@ Every skill is implemented for both Cursor and Claude Code. The hooks, settings 
 There is some duplication across the two trees because there is currently no shared on-disk standard for editor skills. Each tool has its own conventions:
 
 ```
-.cursor/                              .claude/
-└── skills/                           ├── settings.json (hooks + permissions)
-    ├── kafka-topic-audit/            └── skills/
-    │   └── references/                   ├── kafka-topic-audit/
-    ├── kafka-consumer-lag/               │   └── references/
-    │   └── references/                   ├── kafka-consumer-lag/
-    ├── kafka-perf-review/                │   └── references/
-    │   └── references/                   ├── kafka-perf-review/
-    ├── kafka-schema-review/              │   └── references/
-    │   └── references/                   ├── kafka-schema-review/
-    ├── kafka-security-audit/             │   └── references/
-    │   └── references/                   ├── kafka-security-audit/
-    ├── kafka-connector-review/           │   └── references/
-    │   └── references/                   ├── kafka-connector-review/
-    └── kafka-dlq-review/                 │   └── references/
-        └── references/                   └── kafka-dlq-review/
-                                              └── references/
+.cursor/                              .claude-plugin/
+└── skills/                           │   └── marketplace.json (Claude Code marketplace catalog)
+    ├── topic-audit/            plugins/kafka-skills/
+    │   └── references/               ├── .claude-plugin/plugin.json
+    ├── consumer-lag/           ├── README.md
+    │   └── references/               └── skills/
+    ├── perf-review/                ├── topic-audit/
+    │   └── references/                   │   └── references/
+    ├── schema-review/              ├── consumer-lag/
+    │   └── references/                   │   └── references/
+    ├── security-audit/             ├── perf-review/
+    │   └── references/                   │   └── references/
+    ├── connector-review/           ├── schema-review/
+    │   └── references/                   │   └── references/
+    └── dlq-review/                 ├── security-audit/
+        └── references/                   │   └── references/
+                                          ├── connector-review/
+.claude/                                  │   └── references/
+├── settings.json (hooks + perms)         └── dlq-review/
+└── hooks/                                    └── references/
 ```
 
-The Claude Code variants include additional configuration: explicit tool restrictions, argument hints, PostToolUse and Stop hooks, effort level, wildcard permissions and custom spinner verbs, all configured in `.claude/settings.json`.
+For Claude Code, the seven skills ship as the `kafka-skills` plugin under `plugins/kafka-skills/`, with the marketplace catalog at `.claude-plugin/marketplace.json` (so the repo is itself an installable Claude Code marketplace). The repo-local `.claude/settings.json` and `.claude/hooks/` are for this repo's own development workflow (formatting/verification) and are not shipped with the plugin.
+
+The Claude Code skill variants include additional configuration: explicit tool restrictions, argument hints, PostToolUse and Stop hooks, effort level, wildcard permissions and custom spinner verbs.
 
 All skills follow the [Anthropic open standard for skills](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) with progressive disclosure: frontmatter with trigger phrases, negative triggers and categorised metadata; a `references/` directory for detailed lookup tables and test cases loaded on demand; success criteria with quantitative and qualitative metrics; concrete usage examples; troubleshooting for common errors; and validation gates between workflow steps.
 
@@ -86,13 +91,25 @@ All skills follow the [Anthropic open standard for skills](https://resources.ant
 
 ### For Claude Code
 
-1. Copy `.claude/` and `CLAUDE.md` to your project root.
-2. If you plan to use the Kafka skills, configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in your Claude Code MCP settings.
-3. Verify by asking: *"Run a topic audit on staging"* (or any environment name).
+The fastest way is the official plugin marketplace. From inside Claude Code, run:
+
+```text
+/plugin marketplace add lensesio/agentic-engineering-for-apache-kafka
+/plugin install kafka-skills@lensesio
+```
+
+This installs the seven Kafka skills as a single `kafka-skills` plugin. After install:
+
+1. Configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in your Claude Code MCP settings (required for live-cluster skills).
+2. Verify by asking: *"Run a topic audit on staging"* (or any environment name). Skills auto-trigger from their description; for explicit slash invocation, use the namespaced form `/kafka-skills:topic-audit`.
+
+Pull updates with `/plugin update kafka-skills@lensesio` whenever a new release is published.
+
+**Prefer to copy files** (e.g. you want to fork and customise the skills, or you want the bundled `.claude/settings.json` hooks)? Copy `plugins/kafka-skills/skills/` into your project's `.claude/skills/`, copy `.claude/settings.json` and `.claude/hooks/` if you want the formatting/verification hooks, and copy `CLAUDE.md` to your project root.
 
 ### For Claude.ai
 
-1. Download the individual skill folder you want (e.g. `kafka-topic-audit/`).
+1. Download the individual skill folder you want from `plugins/kafka-skills/skills/` (e.g. `topic-audit/`).
 2. Zip the folder.
 3. Open Claude.ai → Settings → Capabilities → Skills.
 4. Click "Upload skill" and select the zipped folder.
@@ -114,7 +131,7 @@ These skills need a Kafka MCP server connected to your environment. The referenc
 Audit all topic configurations against production best practices:
 
 ```
-/kafka-topic-audit <environment>
+/topic-audit <environment>
 ```
 
 Checks replication factor, retention policies, partition count, compaction settings, naming conventions, orphaned topics and metadata completeness.
@@ -124,8 +141,8 @@ Checks replication factor, retention policies, partition count, compaction setti
 Diagnose consumer group lag issues:
 
 ```
-/kafka-consumer-lag <environment>
-/kafka-consumer-lag <environment> <topic>   # Filter by topic
+/consumer-lag <environment>
+/consumer-lag <environment> <topic>   # Filter by topic
 ```
 
 Identifies throughput bottlenecks, rebalancing issues, partition skew, stalled consumers and empty groups.
@@ -135,8 +152,8 @@ Identifies throughput bottlenecks, rebalancing issues, partition skew, stalled c
 Review producer/consumer performance configurations:
 
 ```
-/kafka-perf-review <environment>
-/kafka-perf-review <environment> src/       # Scan specific path
+/perf-review <environment>
+/perf-review <environment> src/       # Scan specific path
 ```
 
 Checks both live cluster configs and codebase for un-tuned defaults (`batch.size`, `linger.ms`, `compression.type`, `acks`, etc.).
@@ -146,7 +163,7 @@ Checks both live cluster configs and codebase for un-tuned defaults (`batch.size
 Review schema changes for compatibility:
 
 ```
-/kafka-schema-review <environment>
+/schema-review <environment>
 ```
 
 Detects breaking changes, missing defaults, schema drift between repo and cluster, and naming issues.
@@ -156,7 +173,7 @@ Detects breaking changes, missing defaults, schema drift between repo and cluste
 Audit Kafka security configuration:
 
 ```
-/kafka-security-audit <environment>
+/security-audit <environment>
 ```
 
 Checks authentication (SASL), encryption (SSL/TLS), secrets management and calibrates severity by environment tier (dev vs production).
@@ -166,7 +183,7 @@ Checks authentication (SASL), encryption (SSL/TLS), secrets management and calib
 Review Kafka Connect configurations:
 
 ```
-/kafka-connector-review <environment>
+/connector-review <environment>
 ```
 
 Checks error handling, DLQ setup, converters, transforms, task count and validates configs against plugin schemas.
@@ -176,7 +193,7 @@ Checks error handling, DLQ setup, converters, transforms, task count and validat
 Review dead letter queue completeness:
 
 ```
-/kafka-dlq-review <environment>
+/dlq-review <environment>
 ```
 
 Discovers DLQ topics, checks monitoring, samples messages for metadata completeness, audits connector DLQ alignment and assesses overall DLQ maturity.

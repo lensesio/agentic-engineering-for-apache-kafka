@@ -33,38 +33,49 @@ Agentic Kafka engineering tools and utilities. This project provides tooling to 
 ├── scripts/                 # Helper scripts
 ├── .cursor/
 │   └── skills/
-│       ├── kafka-topic-audit/           # Topic config audit
+│       ├── topic-audit/           # Topic config audit
 │       │   └── references/              #   audit-rules.md, test-cases.md
-│       ├── kafka-consumer-lag/          # Consumer lag analysis
+│       ├── consumer-lag/          # Consumer lag analysis
 │       │   └── references/              #   test-cases.md
-│       ├── kafka-perf-review/           # Performance review
+│       ├── perf-review/           # Performance review
 │       │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
-│       ├── kafka-schema-review/         # Schema evolution review
+│       ├── schema-review/         # Schema evolution review
 │       │   └── references/              #   compatibility-rules.md, test-cases.md
-│       ├── kafka-security-audit/        # Security posture audit
+│       ├── security-audit/        # Security posture audit
 │       │   └── references/              #   security-properties.md, test-cases.md
-│       ├── kafka-connector-review/      # Kafka Connect config review
+│       ├── connector-review/      # Kafka Connect config review
 │       │   └── references/              #   test-cases.md
-│       └── kafka-dlq-review/            # Dead letter queue review
+│       └── dlq-review/            # Dead letter queue review
 │           └── references/              #   test-cases.md
-└── .claude/
-    ├── settings.json                    # Hooks, permissions, effort level, spinner verbs
-    └── skills/
-        ├── kafka-topic-audit/           # Topic config audit
-        │   └── references/              #   audit-rules.md, test-cases.md
-        ├── kafka-consumer-lag/          # Consumer lag analysis
-        │   └── references/              #   test-cases.md
-        ├── kafka-perf-review/           # Performance review
-        │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
-        ├── kafka-schema-review/         # Schema evolution review
-        │   └── references/              #   compatibility-rules.md, test-cases.md
-        ├── kafka-security-audit/        # Security posture audit
-        │   └── references/              #   security-properties.md, test-cases.md
-        ├── kafka-connector-review/      # Kafka Connect config review
-        │   └── references/              #   test-cases.md
-        └── kafka-dlq-review/            # Dead letter queue review
-            └── references/              #   test-cases.md
+├── .claude/
+│   ├── settings.json                    # Repo-local: hooks, permissions, effort, spinner verbs (NOT shipped via plugin)
+│   └── hooks/                           # Repo-local hooks (e.g. ruff-format.sh)
+├── .claude-plugin/
+│   └── marketplace.json                 # Claude Code marketplace catalog (lists kafka-skills)
+└── plugins/
+    └── kafka-skills/                    # Installable Claude Code plugin
+        ├── .claude-plugin/plugin.json   # Plugin manifest (name, version, author, license)
+        ├── README.md                    # Plugin-level readme
+        └── skills/
+            ├── topic-audit/           # Topic config audit
+            │   └── references/              #   audit-rules.md, test-cases.md
+            ├── consumer-lag/          # Consumer lag analysis
+            │   └── references/              #   test-cases.md
+            ├── perf-review/           # Performance review
+            │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
+            ├── schema-review/         # Schema evolution review
+            │   └── references/              #   compatibility-rules.md, test-cases.md
+            ├── security-audit/        # Security posture audit
+            │   └── references/              #   security-properties.md, test-cases.md
+            ├── connector-review/      # Kafka Connect config review
+            │   └── references/              #   test-cases.md
+            └── dlq-review/            # Dead letter queue review
+                └── references/              #   test-cases.md
 ```
+
+The Claude Code Kafka skills ship as a single plugin (`kafka-skills`) via the in-repo marketplace catalog (`lensesio`). Install with `/plugin marketplace add lensesio/agentic-engineering-for-apache-kafka` then `/plugin install kafka-skills@lensesio`. After install, skills are namespaced as `/kafka-skills:<skill-name>` (description-based auto-triggering still works without the namespace prefix).
+
+The repo-local `.claude/settings.json` and `.claude/hooks/` are for *this repo's* development workflow (formatting + verification feedback loop) and are intentionally not part of the published plugin payload.
 
 ## Skill Structure Conventions
 
@@ -86,13 +97,13 @@ All skills follow the [Anthropic open standard](https://resources.anthropic.com/
 
 These skills require the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) to be connected. They use live cluster data combined with codebase inspection.
 
-- **`/kafka-topic-audit`** - Audit topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata. Uses persistent Lenses tools for live cluster data.
-- **`/kafka-consumer-lag`** - Analyse consumer group lag, diagnose root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) and suggest remediation.
-- **`/kafka-perf-review`** - Review producer/consumer performance configs in both the live cluster and codebase. Flags un-tuned defaults and anti-patterns.
-- **`/kafka-schema-review`** - Review schema changes for compatibility, breaking changes, missing defaults, schema drift between repo and cluster.
-- **`/kafka-security-audit`** - Audit authentication, encryption, secrets management. Calibrates severity by environment tier (development vs production).
-- **`/kafka-connector-review`** - Review Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. Validates configs against plugin schemas.
-- **`/kafka-dlq-review`** - Review dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment.
+- **`/topic-audit`** - Audit topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata. Uses persistent Lenses tools for live cluster data.
+- **`/consumer-lag`** - Analyse consumer group lag, diagnose root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) and suggest remediation.
+- **`/perf-review`** - Review producer/consumer performance configs in both the live cluster and codebase. Flags un-tuned defaults and anti-patterns.
+- **`/schema-review`** - Review schema changes for compatibility, breaking changes, missing defaults, schema drift between repo and cluster.
+- **`/security-audit`** - Audit authentication, encryption, secrets management. Calibrates severity by environment tier (development vs production).
+- **`/connector-review`** - Review Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. Validates configs against plugin schemas.
+- **`/dlq-review`** - Review dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment.
 
 ## Hooks and Settings
 

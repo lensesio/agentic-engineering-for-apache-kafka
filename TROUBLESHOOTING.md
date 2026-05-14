@@ -143,6 +143,40 @@ Do not skip validation steps.
 
 2. **Reduce enabled skills** - If you have many skills enabled, consider selective enablement. Only enable what you need for the current task.
 
+## Claude Code Plugin Install Issues
+
+### `/plugin install kafka-skills@lensesio` fails with "marketplace not found"
+
+**Cause**: The `lensesio` marketplace hasn't been added yet.
+
+**Solution**: Run `/plugin marketplace add lensesio/agentic-engineering-for-apache-kafka` first, then retry the install. List configured marketplaces with `/plugin marketplace list`.
+
+### Skills not available after install
+
+**Cause**: Plugin skills are namespaced under the plugin name. They auto-trigger from natural-language requests, but explicit slash invocation requires the namespace.
+
+**Solution**: Use `/kafka-skills:topic-audit` (and similar for the other six). Confirm install succeeded with `/plugin list` - you should see `kafka-skills@lensesio` enabled.
+
+### `claude plugin validate` errors after editing the marketplace
+
+**Cause**: Schema mismatch. As of Claude Code 2.1.x the validator rejects an unrecognised top-level `description` on the marketplace; it must live under `metadata`.
+
+**Solution**: Move marketplace-level `description` (and `version`) under `"metadata": { ... }` per the official [marketplace schema](https://code.claude.com/docs/en/plugin-marketplaces#optional-fields).
+
+### `/plugin update kafka-skills` fails with "Plugin not found"
+
+**Cause**: When more than one marketplace is registered, the plain plugin name is ambiguous.
+
+**Solution**: Use the namespaced form: `/plugin update kafka-skills@lensesio`.
+
+### Auto-update fails for the GitHub-hosted marketplace
+
+**Cause**: Background updates run without your interactive git credential helper, so private repos and rate-limited GitHub access can fail.
+
+**Solution**: Set `GITHUB_TOKEN` (or `GH_TOKEN`) in your shell profile. See [Private repositories](https://code.claude.com/docs/en/plugin-marketplaces#private-repositories) for the full list of supported providers.
+
+For more, see Anthropic's [Plugin marketplaces troubleshooting](https://code.claude.com/docs/en/plugin-marketplaces#troubleshooting).
+
 ## Kafka-Specific Issues
 
 ### Environment name not recognised
@@ -161,4 +195,4 @@ Do not skip validation steps.
 
 **Cause**: Schema Registry is not configured in the Lenses environment.
 
-**Solution**: This is a valid finding - skills like `kafka-schema-review` will report this as a governance gap rather than treating it as an error.
+**Solution**: This is a valid finding - skills like `schema-review` will report this as a governance gap rather than treating it as an error.

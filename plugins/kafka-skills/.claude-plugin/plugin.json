@@ -1,0 +1,13 @@
+{
+  "name": "kafka-skills",
+  "version": "0.1.0",
+  "description": "Lenses Kafka agent skills (topic audit, consumer lag, perf review, schema, security, connectors, DLQ) powered by the Lenses MCP server",
+  "author": {
+    "name": "Lenses.io",
+    "email": "info@lenses.io"
+  },
+  "homepage": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
+  "repository": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
+  "license": "MIT",
+  "keywords": ["kafka", "lenses-mcp", "audit", "schema", "dlq", "connect", "consumer-lag"]
+}

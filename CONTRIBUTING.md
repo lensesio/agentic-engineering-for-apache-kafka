@@ -57,7 +57,7 @@ Use the [GitHub Issues](https://github.com/lensesio/agentic-engineering-for-apac
 A good bug report includes:
 
 1. **Environment** — Cursor or Claude Code (and version), OS, model in use (Sonnet, Opus, GPT, etc.), MCP server version where relevant.
-2. **Skill affected** — for example, `/kafka-topic-audit`.
+2. **Skill affected** — for example, `/topic-audit`.
 3. **What you expected to happen.**
 4. **What actually happened**, including any agent output. Redact secrets, broker addresses and customer data before pasting.
 5. **Reproduction steps** — the exact prompt, the relevant repo state, and any MCP environment context.
@@ -117,7 +117,7 @@ Most contributions to this repository are Markdown and YAML, so no build step is
 
 ### Adding a new skill
 
-Every skill ships in **both** trees: `.cursor/skills/<skill-name>/` and `.claude/skills/<skill-name>/`. There is some unavoidable duplication today because there is no shared on-disk standard for editor skills. Until there is, a contribution that only updates one tree will be asked to update the other.
+Every skill ships in **both** trees: `.cursor/skills/<skill-name>/` (Cursor) and `plugins/kafka-skills/skills/<skill-name>/` (Claude Code plugin). There is some unavoidable duplication today because there is no shared on-disk standard for editor skills. Until there is, a contribution that only updates one tree will be asked to update the other.
 
 To scaffold a new skill:
 
@@ -126,12 +126,13 @@ To scaffold a new skill:
    ```
    .cursor/skills/<name>/SKILL.md
    .cursor/skills/<name>/references/test-cases.md
-   .claude/skills/<name>/SKILL.md
-   .claude/skills/<name>/references/test-cases.md
+   plugins/kafka-skills/skills/<name>/SKILL.md
+   plugins/kafka-skills/skills/<name>/references/test-cases.md
    ```
-3. Use an existing skill (for example `kafka-topic-audit`) as a template. Match the frontmatter fields, the section ordering and the progressive disclosure pattern.
-4. Add the skill to the tables in `README.md`, `AGENTS.md` and `CLAUDE.md`.
+3. Use an existing skill (for example `topic-audit`) as a template. Match the frontmatter fields, the section ordering and the progressive disclosure pattern.
+4. Add the skill to the tables in `README.md`, `AGENTS.md` and `CLAUDE.md`, and to the table in `plugins/kafka-skills/README.md`.
 5. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) so you avoid the most common authoring mistakes (frontmatter, trigger phrases, over-triggering).
+6. Bump the plugin version in [`plugins/kafka-skills/.claude-plugin/plugin.json`](plugins/kafka-skills/.claude-plugin/plugin.json) (typically a minor bump for a new skill) so existing users get the new skill on their next `/plugin update`. See [Releasing the Claude Code plugin](#releasing-the-claude-code-plugin).
 
 ### Adding a new MCP variant
 
@@ -147,9 +148,9 @@ The Kafka skills are observed against the Lenses MCP server. If you maintain or 
 All skills must follow the [Anthropic open standard for skills](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) with progressive disclosure. Concretely:
 
 - **YAML frontmatter** common to both trees: `name`, `description` (including trigger phrases and negative triggers), `license`, `metadata` (author, version, mcp-server, category, approach, patterns, tags), `compatibility` (for MCP skills).
-- **Claude Code-specific frontmatter** (only in `.claude/skills/<name>/SKILL.md`): `allowed-tools` to restrict the tool surface, `argument-hint` to document expected arguments, and `disable-model-invocation: true` for skills that should only run on explicit invocation. Cursor does not read these fields, so they are not required in the `.cursor/` variants.
+- **Claude Code-specific frontmatter** (only in `plugins/kafka-skills/skills/<name>/SKILL.md`): `allowed-tools` to restrict the tool surface, `argument-hint` to document expected arguments, and `disable-model-invocation: true` for skills that should only run on explicit invocation. Cursor does not read these fields, so they are not required in the `.cursor/` variants.
 - **SKILL.md body** with workflow steps that include expected output notes and validation gates, a Success Criteria section with quantitative and qualitative metrics, an Examples section with concrete "User says X → Claude does Y" scenarios, and a Troubleshooting section for skill-specific edge cases.
-- **`references/` directory** for detailed lookup tables loaded on demand (audit thresholds, config defaults, compatibility matrices). Keep `SKILL.md` itself under ~5,000 words; offload depth to `references/`. Keep `references/` byte-identical between the `.cursor/` and `.claude/` trees.
+- **`references/` directory** for detailed lookup tables loaded on demand (audit thresholds, config defaults, compatibility matrices). Keep `SKILL.md` itself under ~5,000 words; offload depth to `references/`. Keep `references/` byte-identical between the `.cursor/skills/` and `plugins/kafka-skills/skills/` trees.
 - **`references/test-cases.md`** with three layers:
   - Triggering tests (should trigger / should not trigger phrases).
   - Functional tests in Given/When/Then form.
@@ -203,13 +204,40 @@ A good PR is small, focused and easy to review. To make ours an easy "yes":
 We will push back on PRs that:
 
 - Add a skill that overlaps significantly with an existing one without a clear differentiator.
-- Update only one of the `.cursor/` and `.claude/` trees when both apply.
+- Update only one of the `.cursor/skills/` and `plugins/kafka-skills/skills/` trees when both apply.
 - Hardcode broker addresses, topic names, credentials or environment names.
 - Embed long reference material inline in `SKILL.md` instead of using `references/`.
 - Significantly inflate `SKILL.md` past the recommended size without justification.
 - Lack test cases (`references/test-cases.md` is required for new skills).
 
 None of these are personal — they are usually a sign that a short discussion in an issue would have helped. We will say so explicitly and try to suggest the smallest change that gets the PR over the line.
+
+## Releasing the Claude Code plugin
+
+The Kafka skills are distributed as the `kafka-skills` plugin via the in-repo `lensesio` marketplace ([`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json)). End users install via `/plugin install kafka-skills@lensesio`. To cut a new release:
+
+1. **Bump the version.** Edit `version` in [`plugins/kafka-skills/.claude-plugin/plugin.json`](plugins/kafka-skills/.claude-plugin/plugin.json) following [SemVer](https://semver.org/):
+   - **Patch** (`0.1.0` -> `0.1.1`): wording tweaks, reference updates, no workflow change.
+   - **Minor** (`0.1.0` -> `0.2.0`): new skill added, new step in an existing skill, new optional argument.
+   - **Major** (`0.1.0` -> `1.0.0`): renamed skill, removed skill, breaking change to required arguments or expected MCP tool set.
+2. **Validate.** Run `claude plugin validate .` from the repo root - both the marketplace and plugin manifests must pass.
+3. **Smoke test locally:**
+   ```bash
+   claude plugin marketplace add ./ --scope local
+   claude plugin install kafka-skills@lensesio
+   claude plugin list                        # confirm new version installed
+   claude plugin uninstall kafka-skills@lensesio
+   claude plugin marketplace remove lensesio
+   ```
+4. **Open the PR**, get it reviewed and merged to `main`.
+5. **Tag the release:**
+   ```bash
+   git tag -a kafka-skills-v<new-version> -m "kafka-skills v<new-version>"
+   git push origin kafka-skills-v<new-version>
+   ```
+   Existing users will pick up the new version on their next `/plugin update kafka-skills@lensesio` because [version resolution](https://code.claude.com/docs/en/plugin-marketplaces#version-resolution-and-release-channels) compares the `version` string in `plugin.json`. Without a bump, no client sees the change.
+
+**Do not** set `version` in the plugin's marketplace entry - the docs warn that `plugin.json` always silently wins over the marketplace entry, which makes drift hard to debug. Keep `version` in `plugin.json` only.
 
 ## Commit and branch conventions
 
@@ -245,7 +273,7 @@ Examples:
 
 ```
 feat(skill): add kafka-streams-review skill
-fix(kafka-topic-audit): correct retention threshold for compacted topics
+fix(topic-audit): correct retention threshold for compacted topics
 docs(readme): clarify Cursor vs Claude Code setup
 ```
 

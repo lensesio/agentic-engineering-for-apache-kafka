@@ -1,0 +1,22 @@
+{
+  "name": "lensesio",
+  "metadata": {
+    "description": "Lenses-curated Kafka agent skills for Claude Code, powered by the Lenses MCP server"
+  },
+  "owner": {
+    "name": "Lenses.io",
+    "email": "info@lenses.io"
+  },
+  "plugins": [
+    {
+      "name": "kafka-skills",
+      "source": "./plugins/kafka-skills",
+      "description": "Seven Kafka skills (topic audit, consumer lag, perf review, schema, security, connectors, DLQ) powered by the Lenses MCP server",
+      "category": "data-engineering",
+      "tags": ["kafka", "lenses", "mcp", "audit", "observability"],
+      "homepage": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
+      "repository": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
+      "license": "MIT"
+    }
+  ]
+}
