@@ -4,7 +4,7 @@ description: Audit Kafka security configuration across the codebase and live clu
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__check_environment_health, mcp__Lenses__get_environment, mcp__Lenses__list_topics
 argument-hint: "[required: environment name]"
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent broker-config and ACL tool surface will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

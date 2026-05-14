@@ -91,9 +91,9 @@ All skills follow the [Anthropic open standard](https://resources.anthropic.com/
 - Each skill's metadata includes `approach` (problem-first or tool-first) and `patterns` (sequential-workflow, iterative-refinement, context-aware-selection, domain-intelligence)
 - General troubleshooting (upload errors, triggering issues, MCP connection failures, large context) is in `TROUBLESHOOTING.md` at the repo root; skill-specific troubleshooting is in each SKILL.md
 
-## Kafka Skills (powered by Lenses MCP)
+## Kafka Skills
 
-This project ships pre-configured Kafka skills, all observed against the [Lenses MCP server](https://github.com/lensesio/lenses-mcp):
+This project ships pre-configured Kafka skills, recommended for use with [Lenses MCP Server](https://github.com/lensesio/lenses-mcp):
 
 - **`/topic-audit`** - Audit topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata.
 - **`/consumer-lag`** - Analyse consumer group lag, diagnose root causes and suggest remediation.

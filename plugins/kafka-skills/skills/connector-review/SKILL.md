@@ -4,7 +4,7 @@ description: Review Kafka Connect connector configurations for common misconfigu
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__list_kafka_connectors, mcp__Lenses__get_kafka_connector_target_definition, mcp__Lenses__validate_connector_configuration
 argument-hint: "[required: environment name] [optional: connector name to focus on]"
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent Kafka Connect tool surface (list_connectors, get_connector, etc.) will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

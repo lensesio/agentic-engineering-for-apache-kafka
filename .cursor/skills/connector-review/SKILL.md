@@ -2,7 +2,7 @@
 name: connector-review
 description: Review Kafka Connect connector configurations for common misconfigurations using the Lenses MCP server. Checks error handling, DLQ setup, converters, transforms, task count and task health. Use when user says "review connectors", "check connector configs", "why is my connector failing" or asks about Kafka Connect configuration. Do NOT use for creating, deploying or controlling connectors.
 license: MIT
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent Kafka Connect tool surface (list_connectors, get_connector, etc.) will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

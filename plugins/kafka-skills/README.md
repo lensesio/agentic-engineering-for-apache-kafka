@@ -27,11 +27,18 @@ From within Claude Code:
 
 After install, skills are available namespaced as `/kafka-skills:topic-audit`, `/kafka-skills:consumer-lag`, etc.
 
-## Prerequisite: Lenses MCP server
+## Recommended: Lenses MCP server
 
-All skills in this plugin require the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) to be connected and configured with at least one Kafka environment. Without it, the skills will fail at the environment-health check step.
+These skills are observed against the [Lenses MCP server](https://github.com/lensesio/lenses-mcp), which is the recommended setup. The skills call MCP tools (`list_topics`, `get_topic`, `list_consumer_groups`, etc.) to read live cluster state; without an MCP server connected, they'll fall back to codebase-only inspection where possible and skip live-cluster checks.
 
-Follow the setup instructions in the Lenses MCP repo, then verify in Claude Code with `/mcp` that `lenses-mcp` is listed.
+Any Kafka MCP that exposes an equivalent tool surface will also work - you may need to swap a few tool names in the affected SKILL.md if you use a non-Lenses server. PRs adding variants for other Kafka MCP servers are welcome.
+
+To set up the recommended path:
+
+1. Follow the setup instructions in the [Lenses MCP repo](https://github.com/lensesio/lenses-mcp).
+2. Verify in Claude Code with `/mcp` that `lenses-mcp` is listed.
+
+The fastest way to try the skills end-to-end is the free [Lenses Community Edition](https://lenses.io/community-edition/), which ships with Lenses HQ, the MCP server and a pre-configured single-broker Kafka cluster with demo data.
 
 ## Updates
 

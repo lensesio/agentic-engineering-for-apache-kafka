@@ -2,7 +2,7 @@
 name: consumer-lag
 description: Analyse Kafka consumer group lag using the Lenses MCP server. Diagnoses lag causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) and suggests remediation. Use when user says "check consumer lag", "why are consumers slow", "lag report" or asks about consumer group health or offset progress. Do NOT use for resetting offsets or managing consumer groups.
 license: MIT
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent tool surface (list_consumer_groups, get_consumer_group, etc.) will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

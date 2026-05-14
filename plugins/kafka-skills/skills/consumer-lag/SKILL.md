@@ -4,7 +4,7 @@ description: Analyse Kafka consumer group lag using the Lenses MCP server. Diagn
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__list_consumer_groups, mcp__Lenses__list_consumer_groups_by_topic, mcp__Lenses__get_topic_partitions, mcp__Lenses__get_dataset_message_metrics, mcp__Lenses__execute_sql
 argument-hint: "[required: environment name] [optional: topic name to filter by]"
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent tool surface (list_consumer_groups, get_consumer_group, etc.) will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

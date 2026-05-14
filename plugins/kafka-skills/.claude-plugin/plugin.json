@@ -1,6 +1,6 @@
 {
   "name": "kafka-skills",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "description": "Lenses Kafka agent skills (topic audit, consumer lag, perf review, schema, security, connectors, DLQ) powered by the Lenses MCP server",
   "author": {
     "name": "Lenses.io",

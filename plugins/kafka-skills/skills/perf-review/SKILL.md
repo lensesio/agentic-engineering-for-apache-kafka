@@ -4,7 +4,7 @@ description: Review Kafka producer and consumer performance configurations in bo
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__get_topic, mcp__Lenses__get_topic_broker_configs, mcp__Lenses__get_topic_partitions, mcp__Lenses__get_dataset_message_metrics
 argument-hint: "[required: environment name] [optional: path to scan, defaults to src/]"
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent tool surface (list_topics, list_consumer_groups, etc.) will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

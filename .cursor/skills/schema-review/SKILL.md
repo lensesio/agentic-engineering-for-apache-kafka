@@ -2,7 +2,7 @@
 name: schema-review
 description: Review Kafka schema changes (Avro, Protobuf, JSON Schema) for compatibility and evolution best practices using the Lenses MCP server. Detects breaking changes, missing defaults, schema drift and naming issues. Use when user says "review schema changes", "check schema compatibility", "will this schema break consumers" or asks about schema evolution. Do NOT use for creating new schemas from scratch or registering them in the cluster.
 license: MIT
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent Schema Registry tool surface will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

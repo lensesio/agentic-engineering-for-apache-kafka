@@ -2,15 +2,15 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Skills compatible](https://img.shields.io/badge/skills-Anthropic%20open%20standard-7C3AED)](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
-[![Lenses MCP](https://img.shields.io/badge/Lenses%20MCP-required%20for%20Kafka%20skills-1ABC9C)](https://github.com/lensesio/lenses-mcp)
+[![Lenses MCP](https://img.shields.io/badge/Lenses%20MCP-recommended%20for%20Kafka%20skills-1ABC9C)](https://github.com/lensesio/lenses-mcp)
 
-A drop-in collection of Kafka-specific agent skills and editor configuration that turns Claude Code and Cursor into a Kafka-aware engineering assistant. Audit topic configurations, diagnose consumer lag, review schema changes, review connectors and DLQs, catch security misconfigurations and tune performance, all from a single prompt instead of 15 minutes of manual investigation.
+A drop-in collection of agent skills that turn AI agents and tools such as Claude Code and Cursor into Kafka-specialised engineering assistants. Audit topic configurations, diagnose consumer lag, review schema changes, review connectors and DLQs, catch security misconfigurations and tune performance, all from a single prompt instead of 15 minutes of manual exploration or investigation.
 
-Maintained by [Lenses.io](https://lenses.io), the team that pioneered the developer experience for Apache Kafka. Agentic coding has shifted what that means, and making sure an AI agent actually knows how to handle Kafka is now part of the job.
+Maintained by [Lenses.io](https://lenses.io), the team that pioneered the developer experience for Apache Kafka. Agentic coding has shifted what that means, and making sure an AI agent knows how to handle Kafka is now part of the job.
 
-Skills are structured Markdown files that tell an AI agent exactly how to approach a domain or task. Think of them as the expert briefing you would give a new engineer before they wrote their first line of Kafka code in your codebase. They are MCP-agnostic by design: every skill in this repo is observed against the [Lenses MCP Server](https://github.com/lensesio/lenses-mcp) (the recommended setup), but the structure is open and contributions for other Kafka MCP servers are welcome.
+Skills are structured Markdown files that tell an AI agent exactly how to approach a domain or task. Think of them as the expert briefing you would give a new engineer before they wrote their first line of Kafka code in your codebase. They are MCP-agnostic by design: every skill in this repo is observed against [Lenses MCP Server](https://github.com/lensesio/lenses-mcp) (the recommended setup), but the structure is open and works with any Kafka MCP server that exposes similar tools.
 
-The quickest way to try the skills end-to-end is with the free [Lenses Community Edition](https://lenses.io/community-edition/), which ships with Lenses HQ, the MCP Server and a pre-configured single-broker Kafka cluster with demo data, ideal for local evaluation.
+The quickest way to try the skills end-to-end is with the free [Lenses Community Edition](https://lenses.io/community-edition/), which ships with Lenses HQ, a remote MCP Server and a pre-configured single-broker Kafka cluster with demo data, ideal for local evaluation.
 
 ## Why MCP + Skills?
 
@@ -100,7 +100,7 @@ The fastest way is the official plugin marketplace. From inside Claude Code, run
 
 This installs the seven Kafka skills as a single `kafka-skills` plugin. After install:
 
-1. Configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in your Claude Code MCP settings (required for live-cluster skills).
+1. Configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in your Claude Code MCP settings (recommended for live-cluster skills - any Kafka MCP that exposes an equivalent tool surface will also work).
 2. Verify by asking: *"Run a topic audit on staging"* (or any environment name). Skills auto-trigger from their description; for explicit slash invocation, use the namespaced form `/kafka-skills:topic-audit`.
 
 Pull updates with `/plugin update kafka-skills@lensesio` whenever a new release is published.

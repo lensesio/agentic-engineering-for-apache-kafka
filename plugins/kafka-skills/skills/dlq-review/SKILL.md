@@ -4,7 +4,7 @@ description: Review dead letter queue implementations for completeness using the
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__list_topics, mcp__Lenses__get_topic, mcp__Lenses__list_consumer_groups_by_topic, mcp__Lenses__get_dataset_message_metrics, mcp__Lenses__execute_sql, mcp__Lenses__list_kafka_connectors, mcp__Lenses__get_kafka_connector_target_definition
 argument-hint: "[required: environment name]"
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent topic-listing and config-inspection tool surface will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

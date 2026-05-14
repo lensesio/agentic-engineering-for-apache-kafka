@@ -2,7 +2,7 @@
 name: security-audit
 description: Audit Kafka security configuration across the codebase and live cluster using the Lenses MCP server. Checks authentication (SASL), encryption (SSL/TLS), authorisation (ACLs), secrets management and environment tier mismatches. Use when user says "audit Kafka security", "check security config", "is my cluster secure" or asks about authentication, encryption or credentials. Do NOT use for configuring certificates, creating SASL users or setting up ACLs.
 license: MIT
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent broker-config and ACL tool surface will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

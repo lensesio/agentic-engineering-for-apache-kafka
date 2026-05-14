@@ -2,7 +2,7 @@
 name: dlq-review
 description: Review dead letter queue implementations for completeness using the Lenses MCP server. Checks DLQ topic existence, configuration, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment. Use when user says "review dead letter queues", "check DLQ setup", "DLQ audit" or asks about error handling, message failures or reprocessing. Do NOT use for reprocessing DLQ messages or managing consumer offsets.
 license: MIT
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent topic-listing and config-inspection tool surface will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

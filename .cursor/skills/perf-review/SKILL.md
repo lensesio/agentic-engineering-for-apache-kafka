@@ -2,7 +2,7 @@
 name: perf-review
 description: Review Kafka producer and consumer performance configurations in both the live cluster (via Lenses MCP) and the codebase. Flags un-tuned defaults, anti-patterns and missing best practices. Use when user says "review Kafka performance", "check producer configs", "tune Kafka settings" or asks about throughput, batching or compression. Do NOT use for cluster sizing or capacity planning.
 license: MIT
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent tool surface (list_topics, list_consumer_groups, etc.) will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

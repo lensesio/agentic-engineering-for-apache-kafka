@@ -2,7 +2,7 @@
 name: topic-audit
 description: Audit all Kafka topic configurations against production best practices using the Lenses MCP server. Checks replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata. Use when user says "audit my topics", "check topic configs", "topic health check" or asks about retention, replication or partition settings. Do NOT use for creating, deleting or modifying topics.
 license: MIT
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent tool surface (list_topics, get_topic, etc.) will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0

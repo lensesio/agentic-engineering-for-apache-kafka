@@ -36,7 +36,6 @@ There are many ways to help, and writing code is only one of them. All of these 
 - **Improve documentation** — fix a typo, clarify a workflow step, add a worked example, expand a troubleshooting entry.
 - **Improve an existing skill** — better trigger phrases, more accurate audit thresholds, sharper remediation advice, additional reference material in `references/`, or new test cases in `references/test-cases.md`.
 - **Propose a new Kafka skill** — Schema Registry workflows, cluster upgrades, capacity planning, ACL audits, quota tuning, tiered storage review, Kafka Streams or ksqlDB workflows, MirrorMaker review and many more are all good candidates.
-- **Add support for another Kafka MCP server** — the skills are observed against the [Lenses MCP server](https://github.com/lensesio/lenses-mcp), but variants for other Kafka MCP servers are very welcome. See [Adding a new MCP variant](#adding-a-new-mcp-variant).
 - **Share a real-world story** — if you used a skill in anger and learnt something, open an issue or a discussion. That signal directly improves the next iteration.
 - **Triage issues** — reproduce, label and link related issues. This is one of the highest-leverage things a community member can do.
 
@@ -133,15 +132,6 @@ To scaffold a new skill:
 4. Add the skill to the tables in `README.md`, `AGENTS.md` and `CLAUDE.md`, and to the table in `plugins/kafka-skills/README.md`.
 5. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) so you avoid the most common authoring mistakes (frontmatter, trigger phrases, over-triggering).
 6. Bump the plugin version in [`plugins/kafka-skills/.claude-plugin/plugin.json`](plugins/kafka-skills/.claude-plugin/plugin.json) (typically a minor bump for a new skill) so existing users get the new skill on their next `/plugin update`. See [Releasing the Claude Code plugin](#releasing-the-claude-code-plugin).
-
-### Adding a new MCP variant
-
-The Kafka skills are observed against the Lenses MCP server. If you maintain or use a different Kafka MCP server, contributions that add a working variant are very welcome. The recommended approach is:
-
-1. Open an issue describing the MCP server, its tool surface and how it differs from Lenses MCP.
-2. Either add the variant alongside the existing skill (preferred when most of the structure is reusable) or fork the relevant skill into a sibling directory if the surface is materially different.
-3. Update `compatibility` and `metadata.mcp-server` in the frontmatter.
-4. Add a new section to the README pointing at the variant.
 
 ## Skill structure conventions
 

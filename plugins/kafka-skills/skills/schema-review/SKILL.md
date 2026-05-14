@@ -4,7 +4,7 @@ description: Review Kafka schema changes (Avro, Protobuf, JSON Schema) for compa
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__list_topic_metadata, mcp__Lenses__get_topic_metadata, mcp__Lenses__get_dataset, mcp__Lenses__list_datasets, mcp__Lenses__execute_sql
 argument-hint: "[required: environment name] [optional: path to schema files]"
-compatibility: Requires the Lenses MCP server (lenses-mcp) connected and configured with a valid environment.
+compatibility: Recommended - the Lenses MCP server (lenses-mcp) connected and configured with a valid environment. Any Kafka MCP that exposes an equivalent Schema Registry tool surface will also work; without an MCP server, the skill falls back to codebase-only inspection and skips live-cluster checks.
 metadata:
   author: Tun Shwe
   version: 1.0.0
