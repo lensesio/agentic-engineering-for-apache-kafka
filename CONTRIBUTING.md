@@ -128,8 +128,9 @@ To scaffold a new skill:
    ```
 3. Use an existing skill (for example `topic-audit`) as a template. Match the frontmatter fields, the section ordering and the progressive disclosure pattern.
 4. Add the skill to the tables in `README.md`, `AGENTS.md` and `CLAUDE.md`.
-5. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) so you avoid the most common authoring mistakes (frontmatter, trigger phrases, over-triggering).
-6. Bump the plugin version in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) and [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) (typically a minor bump for a new skill) so existing users get the new skill on their next `/plugin update`. See [Releasing the Claude Code plugin](#releasing-the-claude-code-plugin).
+5. Add the new skill's path (for example `./skills/<name>`) to the `skills` array in **both** [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) and [`.cursor-plugin/marketplace.json`](.cursor-plugin/marketplace.json). That array is the canonical published surface for the Claude Code marketplace and for the [`npx skills add`](https://github.com/vercel-labs/skills) install path; without it, the new skill will not be exposed to either channel.
+6. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) so you avoid the most common authoring mistakes (frontmatter, trigger phrases, over-triggering).
+7. Bump the plugin version in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) and [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) (typically a minor bump for a new skill) so existing users get the new skill on their next `/plugin update` or `npx skills update`. See [Releasing the Claude Code plugin](#releasing-the-claude-code-plugin).
 
 ## Skill structure conventions
 
@@ -158,13 +159,14 @@ There is no unit test runner for skill content itself, so we rely on a few light
 2. **Functional tests.** Walk through at least the primary Given/When/Then scenario. Verify the agent follows the workflow steps, calls the expected MCP tools, and produces output in the documented shape.
 3. **Self-check via the agent.** Ask Claude (or Cursor's agent): *"When would you use the `<skill-name>` skill?"* The answer should match the description. If not, the description needs more specific trigger phrases.
 4. **Cross-tool sanity.** Verify the skill in both Cursor and Claude Code. If you only have access to one, say so in the PR and a maintainer will verify the other.
-5. **Lint and format Python tooling** (only if you touched it):
+5. **Skills CLI sanity** (optional but encouraged). From a clean directory, run `npx skills add lensesio/agentic-engineering-for-apache-kafka --list` against your branch's fork to confirm the new skill is discovered, then `npx skills add … --skill <name> -y` to confirm it installs cleanly into a per-agent folder. This catches `skills` array typos in the marketplace manifests early.
+6. **Lint and format Python tooling** (only if you touched it):
    ```bash
    uv run ruff check src/ tests/
    uv run ruff format src/ tests/
    uv run pytest
    ```
-6. **Markdown sanity.** Render the changed files locally or in the GitHub web UI to catch broken links and table formatting.
+7. **Markdown sanity.** Render the changed files locally or in the GitHub web UI to catch broken links and table formatting.
 
 If your change introduces a regression in trigger reliability or workflow output, please mention it in the PR so we can discuss tradeoffs explicitly.
 

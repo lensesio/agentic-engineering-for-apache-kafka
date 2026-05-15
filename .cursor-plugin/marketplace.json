@@ -16,7 +16,16 @@
       "tags": ["kafka", "lenses", "mcp", "audit", "observability"],
       "homepage": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
       "repository": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
-      "license": "MIT"
+      "license": "MIT",
+      "skills": [
+        "./skills/topic-audit",
+        "./skills/consumer-lag",
+        "./skills/perf-review",
+        "./skills/schema-review",
+        "./skills/security-audit",
+        "./skills/connector-review",
+        "./skills/dlq-review"
+      ]
     }
   ]
 }

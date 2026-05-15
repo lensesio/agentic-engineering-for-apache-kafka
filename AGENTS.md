@@ -40,6 +40,8 @@ For Claude Code, the seven skills ship as the `kafka-skills` plugin via the `len
 
 For Cursor, the same payload is exposed as a [Cursor plugin](https://cursor.com/docs/reference/plugins). Install through the [Cursor Marketplace](https://cursor.com/marketplace) or the `/add-plugin` command in the Cursor Agent. Cursor only requires `name` and `description` in skill frontmatter, so the same `SKILL.md` files serve both ecosystems without duplication. Claude-Code-only frontmatter fields (`allowed-tools`, `argument-hint`) are silently ignored by Cursor.
 
+For the cross-tool [Skills CLI](https://github.com/vercel-labs/skills), the same payload is also installable via `npx skills add lensesio/agentic-engineering-for-apache-kafka`, which works with Cursor, Claude Code, Codex, OpenCode, Continue and 50+ other agents from one command. Discovery is driven by the `skills` array in [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) per the [plugin-manifest discovery format](https://github.com/vercel-labs/skills#plugin-manifest-discovery), so the same array gates both the Claude Code marketplace and `npx skills`. The repo is auto-indexed at [skills.sh/lensesio/agentic-engineering-for-apache-kafka](https://skills.sh/lensesio/agentic-engineering-for-apache-kafka); no manual submission is needed.
+
 The published plugin payload deliberately stays narrow - just the seven Kafka skills and their `references/`. Hook and settings recipes (PostToolUse formatting, Stop-hook verification, pre-approved permissions, custom spinner verbs) belong in each consuming team's own `.claude/settings.json`, not in a portable skills plugin.
 
 ## Skill Structure Conventions
@@ -106,6 +108,7 @@ These match the conventions baked into the skill prompts and reflected in `READM
 - Don't change skill behaviour without updating the matching `references/test-cases.md` (triggering, functional and baseline layers)
 - Don't add Python or build infrastructure (`src/`, `tests/`, `pyproject.toml`, `uv.lock`) - the repo is intentionally a Markdown payload
 - Don't bump skill content without bumping `version` in both `.claude-plugin/plugin.json` and `.cursor-plugin/plugin.json`; without a version bump, `/plugin update kafka-skills@lensesio` won't pick up changes (see [CONTRIBUTING.md](CONTRIBUTING.md))
+- Don't add a new skill folder under `skills/` without also adding its path to the `skills` array in `.claude-plugin/marketplace.json` and `.cursor-plugin/marketplace.json` - that array is the canonical published surface for the Claude Code marketplace and the `npx skills add` install path
 - Don't break the published plugin layout (`.claude-plugin/`, `.cursor-plugin/`, `skills/`, `assets/`) without an issue first
 - Don't commit `.env` files, credentials, or any consumer-team configuration
 
@@ -120,3 +123,6 @@ These match the conventions baked into the skill prompts and reflected in `READM
 - [Claude Code Settings documentation](https://code.claude.com/docs/en/settings)
 - [Claude Code Hooks documentation](https://code.claude.com/docs/en/hooks)
 - [Claude Code Permissions documentation](https://code.claude.com/docs/en/permissions)
+- [Skills CLI (`vercel-labs/skills`)](https://github.com/vercel-labs/skills)
+- [skills.sh - open agent skills directory](https://skills.sh)
+- [Agent Skills Specification](https://agentskills.io)

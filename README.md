@@ -81,6 +81,8 @@ This installs the seven Kafka skills via the marketplace catalog at [.cursor-plu
 
 **Prefer to copy files** (e.g. you want to fork and customise the skills locally)? Copy `skills/` into your project's `.cursor/skills/` and copy `AGENTS.md` to your project root, then configure your Kafka MCP server as above.
 
+If you'd rather use the cross-tool [Skills CLI](https://github.com/vercel-labs/skills), see [For `npx skills` (any agent)](#for-npx-skills-any-agent) below.
+
 ### For Claude Code
 
 The fastest way is the official plugin marketplace. From inside Claude Code, run:
@@ -99,6 +101,46 @@ Pull updates with `/plugin update kafka-skills@lensesio` whenever a new release 
 
 **Prefer to copy files** (e.g. you want to fork and customise the skills locally)? Copy `skills/` into your project's `.claude/skills/` and copy `CLAUDE.md` to your project root.
 
+If you'd rather use the cross-tool [Skills CLI](https://github.com/vercel-labs/skills), see [For `npx skills` (any agent)](#for-npx-skills-any-agent) below.
+
+### For `npx skills` (any agent)
+
+If you use the cross-tool [Skills CLI](https://github.com/vercel-labs/skills) (`npx skills`), install all seven Kafka skills from the [skills.sh](https://skills.sh) directory with one command:
+
+```bash
+npx skills add lensesio/agentic-engineering-for-apache-kafka
+```
+
+The CLI auto-detects the agents you have installed (Cursor, Claude Code, Codex, OpenCode, Continue and [50+ others](https://github.com/vercel-labs/skills#supported-agents)) and copies the skills into the right per-agent folder.
+
+To install only a specific skill (the seven valid skill names are `topic-audit`, `consumer-lag`, `perf-review`, `schema-review`, `security-audit`, `connector-review`, `dlq-review`):
+
+```bash
+npx skills add lensesio/agentic-engineering-for-apache-kafka --skill topic-audit
+```
+
+To target a specific agent runtime when you have several installed:
+
+```bash
+npx skills add lensesio/agentic-engineering-for-apache-kafka -a cursor  # or claude-code, codex, opencode, …
+```
+
+To install globally (`~/`-scoped) instead of in the current project:
+
+```bash
+npx skills add lensesio/agentic-engineering-for-apache-kafka -g
+```
+
+To preview what would be installed without writing anything:
+
+```bash
+npx skills add lensesio/agentic-engineering-for-apache-kafka --list
+```
+
+After install, configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in your agent (recommended; any Kafka MCP that exposes an equivalent tool surface also works) and verify with: *"Run a topic audit on staging."* See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) if a skill fails to load.
+
+The skills CLI discovers this repo's seven skills via the `skills` array declared in [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) (the same manifest also serves Claude Code), so any new skill added to that array becomes available to `npx skills add` automatically. Browse the live listing at [skills.sh/lensesio/agentic-engineering-for-apache-kafka](https://skills.sh/lensesio/agentic-engineering-for-apache-kafka).
+
 ### For Claude.ai
 
 1. Download the individual skill folder you want from `skills/` (e.g. `topic-audit/`).
@@ -114,92 +156,7 @@ For programmatic use cases (applications, agents, automated pipelines), skills c
 
 Having trouble? See [TROUBLESHOOTING.md](TROUBLESHOOTING.md) for common issues (upload errors, triggering problems, MCP connection failures).
 
-## Using the Kafka skills
-
-These skills need a Kafka MCP server connected to your environment. The reference data, examples and triggers are observed against the [Lenses MCP server](https://github.com/lensesio/lenses-mcp), which is the recommended setup; if you run a different Kafka MCP server, fork the relevant skill, swap the tool calls and consider opening a PR with the variant. The skills combine live cluster data with codebase inspection.
-
-#### Topic Audit
-
-Audit all topic configurations against production best practices:
-
-```
-/topic-audit <environment>
-```
-
-Checks replication factor, retention policies, partition count, compaction settings, naming conventions, orphaned topics and metadata completeness.
-
-#### Consumer Lag
-
-Diagnose consumer group lag issues:
-
-```
-/consumer-lag <environment>
-/consumer-lag <environment> <topic>   # Filter by topic
-```
-
-Identifies throughput bottlenecks, rebalancing issues, partition skew, stalled consumers and empty groups.
-
-#### Performance Review
-
-Review producer/consumer performance configurations:
-
-```
-/perf-review <environment>
-/perf-review <environment> src/       # Scan specific path
-```
-
-Checks both live cluster configs and codebase for un-tuned defaults (`batch.size`, `linger.ms`, `compression.type`, `acks`, etc.).
-
-#### Schema Review
-
-Review schema changes for compatibility:
-
-```
-/schema-review <environment>
-```
-
-Detects breaking changes, missing defaults, schema drift between repo and cluster, and naming issues.
-
-#### Security Audit
-
-Audit Kafka security configuration:
-
-```
-/security-audit <environment>
-```
-
-Checks authentication (SASL), encryption (SSL/TLS), secrets management and calibrates severity by environment tier (dev vs production).
-
-#### Connector Review
-
-Review Kafka Connect configurations:
-
-```
-/connector-review <environment>
-```
-
-Checks error handling, DLQ setup, converters, transforms, task count and validates configs against plugin schemas.
-
-#### DLQ Review
-
-Review dead letter queue completeness:
-
-```
-/dlq-review <environment>
-```
-
-Discovers DLQ topics, checks monitoring, samples messages for metadata completeness, audits connector DLQ alignment and assesses overall DLQ maturity.
-
 ## Conventions
-
-### Code style
-
-- `snake_case` for functions, variables and file names
-- `PascalCase` for class names
-- `UPPER_SNAKE_CASE` for constants
-- Type hints and Google-style docstrings on all public functions
-- 100-character maximum line length
-- Absolute imports within the project
 
 ### Kafka
 
@@ -210,44 +167,13 @@ Discovers DLQ topics, checks monitoring, samples messages for metadata completen
 - Context managers for all producers and consumers
 - Graceful shutdown with signal handlers
 
-### Git
-
-- Branch naming: `feature/`, `fix/`, `docs/`, `refactor/`
-- Descriptive commit messages
-- Atomic, focused commits
-- Squash WIP commits before merging
-
-## Engage with the community
-
-- Join the Lenses Community on Slack via [launchpass.com/lensesio](https://launchpass.com/lensesio).
-- Browse [docs.lenses.io](https://docs.lenses.io/) for Lenses HQ and Lenses MCP documentation.
-- Try [Lenses Community Edition](https://lenses.io/community-edition/) for a zero-setup Kafka + Lenses environment to evaluate the skills against.
-
 ## Contributing
 
 No single team has seen every Kafka problem. The engineer running 200 topics on a multi-tenant cluster knows things we do not. The team that spent a month debugging a connector edge case has context that belongs in a skill file. If you have caught yourself coaching an agent through the same Kafka problem more than twice, that is a skill waiting to be written.
 
-We welcome contributions across all three of the engineer profiles these skills serve: data engineers (schemas, pipeline reliability, data quality), backend developers (clean produce/consume without getting buried in internals) and streaming developers (state, windowing, exactly-once). The Kafka surface is vast and these skills only scratch it. Kafka Streams, ksqlDB, MirrorMaker, deeper Schema Registry workflows, cluster upgrades, capacity planning, ACL audits, quota tuning and tiered storage review are all good candidates. PRs that add support for non-Lenses Kafka MCP servers are also welcome.
+We welcome contributions across all three of the engineer profiles these skills serve: data engineers (schemas, pipeline reliability, data quality), backend engineers (clean produce/consume without getting buried in internals) and streaming data engineers (state, windowing, exactly-once). The Kafka surface is vast and these skills only scratch it. Kafka Streams, ksqlDB, MirrorMaker, deeper Schema Registry workflows, cluster upgrades, capacity planning, ACL audits, quota tuning and tiered storage review are all good candidates.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose a new Kafka skill, the structural conventions every skill follows (frontmatter, `references/`, test cases, single source of truth shared by the Cursor and Claude Code plugins), and what good first contributions look like. Bug reports, doc improvements and prompt-engineering tweaks are all welcome too. Open an issue or a PR.
-
-## Background and inspiration
-
-This repository is an example of *agentic engineering*, where AI agents handle implementation with engineering rigor under human oversight, as distinct from "vibe coding" where output goes unreviewed. The human directs, reviews and owns the codebase; the agent accelerates the work through pre-configured Kafka skills, validation gates and workflow conventions.
-
-The structure and patterns draw on Anthropic's [Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) and on three sets of public tips from Boris Cherny, creator of Claude Code:
-
-- [Personal workflow](https://x.com/bcherny/status/2007179832300581177): 13 tips on day-to-day Claude Code usage
-- [Team tips](https://x.com/bcherny/status/2017742741636321619): 10 tips from the Claude Code team
-- [Customisation guide](https://x.com/bcherny/status/2021699851499798911): 12 tips on customising Claude Code
-
-How those ideas show up in this repo:
-
-**From the team tips.** Both `CLAUDE.md` and `AGENTS.md` are maintained with project conventions, coding standards and Kafka-specific patterns. Invest in them and update after every correction (tip #3). Skills are committed to the repo so the whole team benefits, rather than living in individual prompt history (tip #4). Each skill is sharply scoped with explicit trigger phrases and negative triggers so the right context loads at the right moment, keeping the agent's working context clean (tip #8).
-
-**From Anthropic's skill guide.** All skills follow the three-level progressive disclosure system (frontmatter → `SKILL.md` body → `references/`). Descriptions include trigger phrases so the agent knows when to load each skill, and frontmatter includes `license`, `metadata` (author, version, mcp-server) and `compatibility` fields per the open standard. Skills are categorised as `mcp-enhancement` and include negative triggers to prevent over-triggering. Each skill defines quantitative and qualitative success criteria, and workflow steps include validation gates that stop or adjust the workflow if a step produces unexpected results. Every skill has a `references/test-cases.md` with three layers: triggering tests, functional Given/When/Then scenarios, and performance baselines (tool calls, errors, user corrections with vs without the skill).
-
-This repository deliberately keeps the published plugin payload narrow - just the seven Kafka skills and their `references/`. Hook and settings recipes (PostToolUse formatting, Stop-hook verification, pre-approved permissions, custom spinner verbs) belong in your own project's `.claude/settings.json`, not in a portable skills plugin. Boris Cherny's [personal workflow](https://x.com/bcherny/status/2007179832300581177) and [customisation guide](https://x.com/bcherny/status/2021699851499798911) are the canonical references for setting those up in your own repo.
 
 ## Resources
 
@@ -257,9 +183,9 @@ This repository deliberately keeps the published plugin payload narrow - just th
 - [Anthropic's Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
 - [Cursor Skills documentation](https://cursor.com/docs/context/skills)
 - [Claude Code Skills documentation](https://code.claude.com/docs/en/skills)
-- [Claude Code Settings documentation](https://code.claude.com/docs/en/settings)
-- [Claude Code Hooks documentation](https://code.claude.com/docs/en/hooks)
-- [Claude Code Permissions documentation](https://code.claude.com/docs/en/permissions)
+- [Skills CLI (`vercel-labs/skills`)](https://github.com/vercel-labs/skills)
+- [skills.sh — open agent skills directory](https://skills.sh)
+- [Agent Skills Specification](https://agentskills.io)
 
 ## License
 
