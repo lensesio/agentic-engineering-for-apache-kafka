@@ -99,7 +99,7 @@ This installs the seven Kafka skills as a single `kafka-skills` plugin. After in
 
 Pull updates with `/plugin update kafka-skills@lensesio` whenever a new release is published.
 
-**Prefer to copy files** (e.g. you want to fork and customise the skills locally)? Copy `skills/` into your project's `.claude/skills/` and copy `CLAUDE.md` to your project root.
+**Prefer to copy files** (e.g. you want to fork and customise the skills locally)? Copy `skills/` into your project's `.claude/skills/` and copy `AGENTS.md` to your project root.
 
 If you'd rather use the cross-tool [Skills CLI](https://github.com/vercel-labs/skills), see [For `npx skills` (any agent)](#for-npx-skills-any-agent) below.
 

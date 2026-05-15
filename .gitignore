@@ -14,26 +14,7 @@ Thumbs.db
 *.swp
 *.swo
 
-# Python
-__pycache__/
-*.py[cod]
-*$py.class
-.venv/
-venv/
+# Local environment / secrets
 .env
 .env.*
 !.env.example
-.python-version
-
-# Python tooling caches
-.ruff_cache/
-.mypy_cache/
-.pytest_cache/
-.coverage
-.coverage.*
-htmlcov/
-
-# Build / packaging
-build/
-dist/
-*.egg-info/

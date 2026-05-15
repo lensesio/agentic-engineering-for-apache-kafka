@@ -112,7 +112,7 @@ We use the standard [fork-and-pull workflow](https://github.com/susam/gitpr).
 7. **Commit** using descriptive messages and sign your commits (`-s`); see [Sign-off and licensing](#sign-off-and-licensing).
 8. **Push** to your fork and open a Pull Request against `main`.
 
-Most contributions to this repository are Markdown and YAML, so no build step is required. If you are working on the Python tooling referenced in `AGENTS.md` and `CLAUDE.md`, follow the setup instructions there (`uv sync`, `uv run pytest`, `uv run ruff check`).
+Most contributions to this repository are Markdown and YAML, so no build step is required.
 
 ### Adding a new skill
 
@@ -127,7 +127,7 @@ To scaffold a new skill:
    skills/<name>/references/test-cases.md
    ```
 3. Use an existing skill (for example `topic-audit`) as a template. Match the frontmatter fields, the section ordering and the progressive disclosure pattern.
-4. Add the skill to the tables in `README.md`, `AGENTS.md` and `CLAUDE.md`.
+4. Add the skill to the tables in `README.md` and `AGENTS.md`.
 5. Add the new skill's path (for example `./skills/<name>`) to the `skills` array in **both** [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) and [`.cursor-plugin/marketplace.json`](.cursor-plugin/marketplace.json). That array is the canonical published surface for the Claude Code marketplace and for the [`npx skills add`](https://github.com/vercel-labs/skills) install path; without it, the new skill will not be exposed to either channel.
 6. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) so you avoid the most common authoring mistakes (frontmatter, trigger phrases, over-triggering).
 7. Bump the plugin version in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) and [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) (typically a minor bump for a new skill) so existing users get the new skill on their next `/plugin update` or `npx skills update`. See [Releasing the Claude Code plugin](#releasing-the-claude-code-plugin).
@@ -149,7 +149,7 @@ All skills must follow the [Anthropic open standard for skills](https://resource
 
 A single `SKILL.md` per skill serves both Cursor and Claude Code. Claude-Code-only frontmatter (`allowed-tools`, `argument-hint`, `disable-model-invocation`) and Claude-Code substitution tokens (`$ARGUMENTS`) live alongside the shared content; Cursor reads only the fields it understands and treats unknown frontmatter as a no-op. Avoid creating a separate Cursor-flavoured copy of any skill - keep one source of truth.
 
-For a fuller treatment, see the [Skill Structure Conventions](AGENTS.md#skill-structure-conventions) section in `AGENTS.md` and `CLAUDE.md`.
+For a fuller treatment, see the [Skill Structure Conventions](AGENTS.md#skill-structure-conventions) section in `AGENTS.md`.
 
 ## Testing your changes
 
@@ -160,13 +160,7 @@ There is no unit test runner for skill content itself, so we rely on a few light
 3. **Self-check via the agent.** Ask Claude (or Cursor's agent): *"When would you use the `<skill-name>` skill?"* The answer should match the description. If not, the description needs more specific trigger phrases.
 4. **Cross-tool sanity.** Verify the skill in both Cursor and Claude Code. If you only have access to one, say so in the PR and a maintainer will verify the other.
 5. **Skills CLI sanity** (optional but encouraged). From a clean directory, run `npx skills add lensesio/agentic-engineering-for-apache-kafka --list` against your branch's fork to confirm the new skill is discovered, then `npx skills add … --skill <name> -y` to confirm it installs cleanly into a per-agent folder. This catches `skills` array typos in the marketplace manifests early.
-6. **Lint and format Python tooling** (only if you touched it):
-   ```bash
-   uv run ruff check src/ tests/
-   uv run ruff format src/ tests/
-   uv run pytest
-   ```
-7. **Markdown sanity.** Render the changed files locally or in the GitHub web UI to catch broken links and table formatting.
+6. **Markdown sanity.** Render the changed files locally or in the GitHub web UI to catch broken links and table formatting.
 
 If your change introduces a regression in trigger reliability or workflow output, please mention it in the PR so we can discuss tradeoffs explicitly.
 
@@ -179,7 +173,7 @@ A good PR is small, focused and easy to review. To make ours an easy "yes":
 - **Description** explains *why* the change is needed and *what* a reviewer should look at first. If your PR is the implementation of a previously discussed issue, link it with `Closes #123`. Include before/after agent transcripts where useful.
 - **Reference test cases.** If you added or modified a skill, point to the test cases you ran in the PR description.
 - **Keep the diff readable.** Avoid drive-by formatting changes in unrelated files.
-- **Update docs.** If your change affects user-facing behaviour, update `README.md`, `AGENTS.md`, `CLAUDE.md` and `TROUBLESHOOTING.md` as appropriate.
+- **Update docs.** If your change affects user-facing behaviour, update `README.md`, `AGENTS.md` and `TROUBLESHOOTING.md` as appropriate.
 - **Sign your commits.** See [Sign-off and licensing](#sign-off-and-licensing).
 
 ### Review process
@@ -233,7 +227,7 @@ The Kafka skills are distributed as the `kafka-skills` plugin via the in-repo `l
 
 ### Branch names
 
-Use the prefixes already established in `AGENTS.md` and `CLAUDE.md`:
+Use the prefixes already established in `AGENTS.md`:
 
 - `feature/<short-description>` — new skill, hook or capability.
 - `fix/<short-description>` — bug fix.
@@ -298,10 +292,6 @@ If your employer requires a CLA or has restrictions on open-source contributions
 - Two-space indentation.
 - Quote strings only when they contain colons, quotes or other YAML metacharacters.
 - Keep `description` between one and three sentences with explicit trigger phrases and at least one negative trigger.
-
-### Python (when applicable)
-
-If you touch the Python tooling, follow the conventions in `AGENTS.md`/`CLAUDE.md`: `snake_case` for functions and variables, `PascalCase` for classes, `UPPER_SNAKE_CASE` for constants, type hints and Google-style docstrings on all public functions, 100-character line limit, absolute imports.
 
 ## Where to get help
 

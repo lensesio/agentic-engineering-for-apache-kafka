@@ -6,7 +6,7 @@ A drop-in collection of agent skills that turn AI agents and tools such as Claud
 
 Maintained by [Lenses.io](https://lenses.io). Skills are MCP-agnostic by design but observed against the [Lenses MCP Server](https://github.com/lensesio/lenses-mcp); any Kafka MCP server that exposes an equivalent tool surface works.
 
-This repo is a **Markdown skills payload**, not a Python project. It deliberately ships no source code, build system, tests, or runtime configuration - just `SKILL.md` files, their `references/`, plugin manifests, and documentation.
+This repo is a **Markdown skills payload**. It deliberately ships no source code, build system, tests, or runtime configuration - just `SKILL.md` files, their `references/`, plugin manifests, and documentation.
 
 ## Project Structure
 
@@ -27,8 +27,7 @@ skills/                               # Shared SKILL.md payload (Claude Code + C
 ├── security-audit/   (+ references/)
 ├── connector-review/ (+ references/)
 └── dlq-review/       (+ references/)
-AGENTS.md                             # Cursor agent memory (this file)
-CLAUDE.md                             # Claude Code agent memory
+AGENTS.md                             # Agent memory (this file)
 README.md                             # Source of truth for end-user installation and usage
 CONTRIBUTING.md                       # How to add a new skill, conventions, release process
 TROUBLESHOOTING.md                    # Common issues (upload errors, triggering, MCP failures)
@@ -74,16 +73,7 @@ Recommended for use with the [Lenses MCP Server](https://github.com/lensesio/len
 
 ## Conventions
 
-These match the conventions baked into the skill prompts and reflected in `README.md`. They describe how the skills expect Kafka code to be written in a consumer's project; they are not enforced on this repo's Markdown.
-
-### Code style
-
-- `snake_case` for functions, variables and file names
-- `PascalCase` for class names
-- `UPPER_SNAKE_CASE` for constants
-- Type hints and Google-style docstrings on all public functions
-- 100-character maximum line length
-- Absolute imports within the project
+These match the conventions baked into the skill prompts and reflected in `README.md`. They describe how the skills expect Kafka resources to be named in a consumer's project; they are not enforced on this repo's Markdown.
 
 ### Kafka
 
@@ -106,7 +96,7 @@ These match the conventions baked into the skill prompts and reflected in `READM
 - Don't create a parallel `.cursor/skills/` tree - `skills/` at the repo root is the single source of truth for both Cursor and Claude Code
 - Don't add `hooks`, `mcpServers` or `permissionMode` to plugin-shipped skills or subagents - the Claude Code plugin loader silently drops them
 - Don't change skill behaviour without updating the matching `references/test-cases.md` (triggering, functional and baseline layers)
-- Don't add Python or build infrastructure (`src/`, `tests/`, `pyproject.toml`, `uv.lock`) - the repo is intentionally a Markdown payload
+- Don't add source code or build infrastructure (`src/`, `tests/`, language-specific build configs) - the repo is intentionally a Markdown payload
 - Don't bump skill content without bumping `version` in both `.claude-plugin/plugin.json` and `.cursor-plugin/plugin.json`; without a version bump, `/plugin update kafka-skills@lensesio` won't pick up changes (see [CONTRIBUTING.md](CONTRIBUTING.md))
 - Don't add a new skill folder under `skills/` without also adding its path to the `skills` array in `.claude-plugin/marketplace.json` and `.cursor-plugin/marketplace.json` - that array is the canonical published surface for the Claude Code marketplace and the `npx skills add` install path
 - Don't break the published plugin layout (`.claude-plugin/`, `.cursor-plugin/`, `skills/`, `assets/`) without an issue first
