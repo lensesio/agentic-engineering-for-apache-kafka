@@ -73,16 +73,13 @@ Recommended for use with the [Lenses MCP Server](https://github.com/lensesio/len
 
 ## Conventions
 
-These match the conventions baked into the skill prompts and reflected in `README.md`. They describe how the skills expect Kafka resources to be named in a consumer's project; they are not enforced on this repo's Markdown.
+These match the conventions actively audited by the skills and reflected in `README.md`. They describe how the skills expect Kafka resources to be named or configured in a consumer's project; they are not enforced on this repo's Markdown.
 
 ### Kafka
 
-- Topic names: `<domain>.<entity>.<event>` (e.g. `orders.payment.completed`)
-- Consumer group IDs: `<service-name>-<purpose>` (e.g. `analytics-order-processor`)
-- Explicit serialisers/deserialisers (no implicit defaults)
-- Idempotent producers where possible
-- Context managers for all producers and consumers
-- Graceful shutdown with signal handlers
+- Topic names: `<domain>.<entity>.<event>` (e.g. `orders.payment.completed`) - checked by `kafka-topic-audit`
+- Idempotent producers where possible (`enable.idempotence=true`) - checked by `kafka-perf-review`
+- Graceful shutdown for producers and consumers - flagged as an anti-pattern by `kafka-perf-review`
 
 ### Git
 
