@@ -18,13 +18,13 @@
       "repository": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
       "license": "MIT",
       "skills": [
-        "./skills/topic-audit",
-        "./skills/consumer-lag",
-        "./skills/perf-review",
-        "./skills/schema-review",
-        "./skills/security-audit",
-        "./skills/connector-review",
-        "./skills/dlq-review"
+        "./skills/kafka-topic-audit",
+        "./skills/kafka-consumer-lag",
+        "./skills/kafka-perf-review",
+        "./skills/kafka-schema-review",
+        "./skills/kafka-security-audit",
+        "./skills/kafka-connector-review",
+        "./skills/kafka-dlq-review"
       ]
     }
   ]

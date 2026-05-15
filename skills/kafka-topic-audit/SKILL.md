@@ -1,5 +1,5 @@
 ---
-name: topic-audit
+name: kafka-topic-audit
 description: Audit all Kafka topic configurations against production best practices using the Lenses MCP server. Checks replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata. Use when user says "audit my topics", "check topic configs", "topic health check" or asks about retention, replication or partition settings. Do NOT use for creating, deleting or modifying topics.
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__check_environment_health, mcp__Lenses__list_topics, mcp__Lenses__get_topic, mcp__Lenses__get_topic_broker_configs, mcp__Lenses__get_topic_partitions, mcp__Lenses__list_topic_metadata, mcp__Lenses__list_consumer_groups_by_topic, mcp__Lenses__list_datasets

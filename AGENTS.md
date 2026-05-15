@@ -20,13 +20,13 @@ This repo is a **Markdown skills payload**. It deliberately ships no source code
 assets/
 └── logo.svg                          # Plugin logo (consumed by the Cursor manifest)
 skills/                               # Shared SKILL.md payload (Claude Code + Cursor)
-├── topic-audit/      (+ references/)
-├── consumer-lag/     (+ references/)
-├── perf-review/      (+ references/)
-├── schema-review/    (+ references/)
-├── security-audit/   (+ references/)
-├── connector-review/ (+ references/)
-└── dlq-review/       (+ references/)
+├── kafka-topic-audit/      (+ references/)
+├── kafka-consumer-lag/     (+ references/)
+├── kafka-perf-review/      (+ references/)
+├── kafka-schema-review/    (+ references/)
+├── kafka-security-audit/   (+ references/)
+├── kafka-connector-review/ (+ references/)
+└── kafka-dlq-review/       (+ references/)
 AGENTS.md                             # Agent memory (this file)
 README.md                             # Source of truth for end-user installation and usage
 CONTRIBUTING.md                       # How to add a new skill, conventions, release process
@@ -63,13 +63,13 @@ All skills follow the [Anthropic open standard](https://resources.anthropic.com/
 
 Recommended for use with the [Lenses MCP Server](https://github.com/lensesio/lenses-mcp):
 
-- **`/topic-audit`** - Audits topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata.
-- **`/consumer-lag`** - Analyses consumer group lag and diagnoses root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) with remediation suggestions.
-- **`/perf-review`** - Reviews producer/consumer performance configs in both the live cluster and the codebase. Flags un-tuned defaults, anti-patterns and missing best practices.
-- **`/schema-review`** - Reviews schema changes (Avro, Protobuf, JSON Schema) for compatibility, breaking changes, missing defaults, naming issues and schema drift.
-- **`/security-audit`** - Audits authentication (SASL), encryption (SSL/TLS), secrets management and environment-tier mismatches across codebase and cluster.
-- **`/connector-review`** - Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health.
-- **`/dlq-review`** - Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment.
+- **`/kafka-topic-audit`** - Audits topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata.
+- **`/kafka-consumer-lag`** - Analyses consumer group lag and diagnoses root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) with remediation suggestions.
+- **`/kafka-perf-review`** - Reviews producer/consumer performance configs in both the live cluster and the codebase. Flags un-tuned defaults, anti-patterns and missing best practices.
+- **`/kafka-schema-review`** - Reviews schema changes (Avro, Protobuf, JSON Schema) for compatibility, breaking changes, missing defaults, naming issues and schema drift.
+- **`/kafka-security-audit`** - Audits authentication (SASL), encryption (SSL/TLS), secrets management and environment-tier mismatches across codebase and cluster.
+- **`/kafka-connector-review`** - Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health.
+- **`/kafka-dlq-review`** - Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment.
 
 ## Conventions
 

@@ -1,5 +1,5 @@
 ---
-name: connector-review
+name: kafka-connector-review
 description: Review Kafka Connect connector configurations for common misconfigurations using the Lenses MCP server. Checks error handling, DLQ setup, converters, transforms, task count and task health. Use when user says "review connectors", "check connector configs", "why is my connector failing" or asks about Kafka Connect configuration. Do NOT use for creating, deploying or controlling connectors.
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__list_kafka_connectors, mcp__Lenses__get_kafka_connector_target_definition, mcp__Lenses__validate_connector_configuration

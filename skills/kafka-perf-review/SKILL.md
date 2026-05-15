@@ -1,5 +1,5 @@
 ---
-name: perf-review
+name: kafka-perf-review
 description: Review Kafka producer and consumer performance configurations in both the live cluster (via Lenses MCP) and the codebase. Flags un-tuned defaults, anti-patterns and missing best practices. Use when user says "review Kafka performance", "check producer configs", "tune Kafka settings" or asks about throughput, batching or compression. Do NOT use for cluster sizing or capacity planning.
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__get_topic, mcp__Lenses__get_topic_broker_configs, mcp__Lenses__get_topic_partitions, mcp__Lenses__get_dataset_message_metrics

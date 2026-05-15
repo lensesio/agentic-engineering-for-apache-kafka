@@ -56,7 +56,7 @@ Use the [GitHub Issues](https://github.com/lensesio/agentic-engineering-for-apac
 A good bug report includes:
 
 1. **Environment** — Cursor or Claude Code (and version), OS, model in use (Sonnet, Opus, GPT, etc.), MCP server version where relevant.
-2. **Skill affected** — for example, `/topic-audit`.
+2. **Skill affected** — for example, `/kafka-topic-audit`.
 3. **What you expected to happen.**
 4. **What actually happened**, including any agent output. Redact secrets, broker addresses and customer data before pasting.
 5. **Reproduction steps** — the exact prompt, the relevant repo state, and any MCP environment context.
@@ -126,7 +126,7 @@ To scaffold a new skill:
    skills/<name>/SKILL.md
    skills/<name>/references/test-cases.md
    ```
-3. Use an existing skill (for example `topic-audit`) as a template. Match the frontmatter fields, the section ordering and the progressive disclosure pattern.
+3. Use an existing skill (for example `kafka-topic-audit`) as a template. Match the frontmatter fields, the section ordering and the progressive disclosure pattern.
 4. Add the skill to the tables in `README.md` and `AGENTS.md`.
 5. Add the new skill's path (for example `./skills/<name>`) to the `skills` array in **both** [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json) and [`.cursor-plugin/marketplace.json`](.cursor-plugin/marketplace.json). That array is the canonical published surface for the Claude Code marketplace and for the [`npx skills add`](https://github.com/vercel-labs/skills) install path; without it, the new skill will not be exposed to either channel.
 6. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) so you avoid the most common authoring mistakes (frontmatter, trigger phrases, over-triggering).
@@ -257,7 +257,7 @@ Examples:
 
 ```
 feat(skill): add kafka-streams-review skill
-fix(topic-audit): correct retention threshold for compacted topics
+fix(kafka-topic-audit): correct retention threshold for compacted topics
 docs(readme): clarify Cursor vs Claude Code setup
 ```
 

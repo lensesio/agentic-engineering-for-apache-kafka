@@ -1,5 +1,5 @@
 ---
-name: security-audit
+name: kafka-security-audit
 description: Audit Kafka security configuration across the codebase and live cluster using the Lenses MCP server. Checks authentication (SASL), encryption (SSL/TLS), authorisation (ACLs), secrets management and environment tier mismatches. Use when user says "audit Kafka security", "check security config", "is my cluster secure" or asks about authentication, encryption or credentials. Do NOT use for configuring certificates, creating SASL users or setting up ACLs.
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__check_environment_health, mcp__Lenses__get_environment, mcp__Lenses__list_topics
