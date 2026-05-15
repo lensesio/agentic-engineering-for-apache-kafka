@@ -1,5 +1,5 @@
 ---
-name: dlq-review
+name: kafka-dlq-review
 description: Review dead letter queue implementations for completeness using the Lenses MCP server. Checks DLQ topic existence, configuration, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment. Use when user says "review dead letter queues", "check DLQ setup", "DLQ audit" or asks about error handling, message failures or reprocessing. Do NOT use for reprocessing DLQ messages or managing consumer offsets.
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__list_topics, mcp__Lenses__get_topic, mcp__Lenses__list_consumer_groups_by_topic, mcp__Lenses__get_dataset_message_metrics, mcp__Lenses__execute_sql, mcp__Lenses__list_kafka_connectors, mcp__Lenses__get_kafka_connector_target_definition

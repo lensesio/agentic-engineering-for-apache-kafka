@@ -155,7 +155,7 @@ Do not skip validation steps.
 
 **Cause**: Plugin skills are namespaced under the plugin name. They auto-trigger from natural-language requests, but explicit slash invocation requires the namespace.
 
-**Solution**: Use `/kafka-skills:topic-audit` (and similar for the other six). Confirm install succeeded with `/plugin list` - you should see `kafka-skills@lensesio` enabled.
+**Solution**: Use `/kafka-skills:kafka-topic-audit` (and similar for the other six). Confirm install succeeded with `/plugin list` - you should see `kafka-skills@lensesio` enabled.
 
 ### `claude plugin validate` errors after editing the marketplace
 
@@ -192,14 +192,14 @@ For more, see Anthropic's [Plugin marketplaces troubleshooting](https://code.cla
 **Solution**:
 
 1. Reload the Cursor window (Command Palette → *Developer: Reload Window*).
-2. Confirm each skill folder under your project's plugin install location contains an `SKILL.md` (not `skill.md` or `README.md`). The seven expected folders are `topic-audit`, `consumer-lag`, `perf-review`, `schema-review`, `security-audit`, `connector-review`, `dlq-review`.
+2. Confirm each skill folder under your project's plugin install location contains an `SKILL.md` (not `skill.md` or `README.md`). The seven expected folders are `kafka-topic-audit`, `kafka-consumer-lag`, `kafka-perf-review`, `kafka-schema-review`, `kafka-security-audit`, `kafka-connector-review`, `kafka-dlq-review`.
 3. Confirm each `SKILL.md` has both `name` and `description` in YAML frontmatter - Cursor silently ignores any skill missing either field.
 
 ### Skill loads but `/<skill-name>` slash command does nothing
 
 **Cause**: Cursor exposes plugin skills as agent capabilities, not as standalone slash commands like Claude Code does.
 
-**Solution**: Trigger the skill from a natural-language prompt (*"Run a topic audit on staging"*) rather than typing `/topic-audit` directly. The plugin's logo and skill list appear in the Cursor Agent's plugin panel once the install succeeds.
+**Solution**: Trigger the skill from a natural-language prompt (*"Run a topic audit on staging"*) rather than typing `/kafka-topic-audit` directly. The plugin's logo and skill list appear in the Cursor Agent's plugin panel once the install succeeds.
 
 ### Plugin doesn't pick up a new release
 
@@ -219,9 +219,9 @@ For more, see [Cursor plugin reference](https://cursor.com/docs/reference/plugin
 
 ### `--skill <name>` reports "skill not found"
 
-**Cause**: The seven valid skill names are the unprefixed forms in each `SKILL.md` frontmatter: `topic-audit`, `consumer-lag`, `perf-review`, `schema-review`, `security-audit`, `connector-review`, `dlq-review`.
+**Cause**: The seven valid skill names are the `kafka-`-prefixed forms in each `SKILL.md` frontmatter: `kafka-topic-audit`, `kafka-consumer-lag`, `kafka-perf-review`, `kafka-schema-review`, `kafka-security-audit`, `kafka-connector-review`, `kafka-dlq-review`.
 
-**Solution**: Use one of the seven names above. The [skills.sh listing](https://skills.sh/lensesio/agentic-engineering-for-apache-kafka) may temporarily show `kafka-`-prefixed historical names from earlier releases - those names are stale and were retired in `v2.0.0`.
+**Solution**: Use one of the seven names above. The [skills.sh listing](https://skills.sh/lensesio/agentic-engineering-for-apache-kafka) may temporarily cache earlier unprefixed names - those names are stale.
 
 ### Skill installs successfully but the agent doesn't load it
 
@@ -265,4 +265,4 @@ For more, see the [Skills CLI README](https://github.com/vercel-labs/skills) and
 
 **Cause**: Schema Registry is not configured in the Lenses environment.
 
-**Solution**: This is a valid finding - skills like `schema-review` will report this as a governance gap rather than treating it as an error.
+**Solution**: This is a valid finding - skills like `kafka-schema-review` will report this as a governance gap rather than treating it as an error.

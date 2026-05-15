@@ -1,5 +1,5 @@
 ---
-name: schema-review
+name: kafka-schema-review
 description: Review Kafka schema changes (Avro, Protobuf, JSON Schema) for compatibility and evolution best practices using the Lenses MCP server. Detects breaking changes, missing defaults, schema drift and naming issues. Use when user says "review schema changes", "check schema compatibility", "will this schema break consumers" or asks about schema evolution. Do NOT use for creating new schemas from scratch or registering them in the cluster.
 license: MIT
 allowed-tools: Read, Grep, Glob, Bash, mcp__Lenses__list_topic_metadata, mcp__Lenses__get_topic_metadata, mcp__Lenses__get_dataset, mcp__Lenses__list_datasets, mcp__Lenses__execute_sql
