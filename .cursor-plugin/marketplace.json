@@ -1,11 +1,11 @@
 {
   "name": "lensesio",
-  "metadata": {
-    "description": "Lenses-curated Kafka agent skills for Claude Code, recommended for use with Lenses MCP Server"
-  },
   "owner": {
     "name": "Lenses.io",
     "email": "info@lenses.io"
+  },
+  "metadata": {
+    "description": "Lenses-curated Kafka agent skills for Cursor, recommended for use with the Lenses MCP Server"
   },
   "plugins": [
     {

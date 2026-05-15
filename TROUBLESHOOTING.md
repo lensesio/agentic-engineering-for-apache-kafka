@@ -80,7 +80,7 @@ All skills in this repo already include negative triggers. See any `SKILL.md` fo
 1. **Verify MCP server is connected**
    - Cursor: Check MCP settings panel
    - Claude.ai: Settings > Extensions > Lenses
-   - Claude Code: Check `.claude/settings.json` and MCP config
+   - Claude Code: Check `~/.claude.json` (user) or `.claude/settings.json` (project) for MCP server config
    - Should show "Connected" status
 
 2. **Check authentication**

@@ -2,217 +2,121 @@
 
 ## Project Overview
 
-Agentic Kafka engineering tools and utilities. This project provides tooling to help engineers work with Apache Kafka more effectively using AI assistance. It ships with pre-configured Kafka-specific agent skills for both **Cursor** and **Claude Code**.
+A drop-in collection of agent skills that turn AI agents and tools such as Claude Code and Cursor into Kafka-specialised engineering assistants. The repository **is** the plugin - the same `skills/` payload at the repo root is consumed by both the Claude Code marketplace (`.claude-plugin/`) and the Cursor marketplace (`.cursor-plugin/`).
 
-## Tech Stack
+Maintained by [Lenses.io](https://lenses.io). Skills are MCP-agnostic by design but observed against the [Lenses MCP Server](https://github.com/lensesio/lenses-mcp); any Kafka MCP server that exposes an equivalent tool surface works.
 
-- **Language**: Python 3.13+
-- **Package Manager**: uv
-- **Kafka Client**: confluent-kafka
-- **AI/LLM**: Claude API (Anthropic)
-- **Testing**: pytest
-- **Linting**: ruff
+This repo is a **Markdown skills payload**, not a Python project. It deliberately ships no source code, build system, tests, or runtime configuration - just `SKILL.md` files, their `references/`, plugin manifests, and documentation.
 
 ## Project Structure
 
 ```
-├── AGENTS.md                # Cursor agent memory (this file)
-├── CLAUDE.md                # Claude Code agent memory
-├── pyproject.toml           # Project metadata and dependencies
-├── uv.lock                  # Locked dependency versions
-├── src/
-│   ├── kafka/               # Kafka producers, consumers, admin utilities
-│   ├── ai/                  # AI/LLM integration and prompts
-│   ├── cli/                 # Command-line interface
-│   └── utils/               # Shared utilities
-├── tests/
-│   ├── unit/                # Unit tests (mirrors src/ structure)
-│   └── integration/         # Integration tests (require Docker Kafka)
-├── config/                  # Configuration templates
-├── docs/                    # Documentation
-├── scripts/                 # Helper scripts
-├── .cursor/
-│   └── skills/
-│       ├── topic-audit/           # Topic config audit
-│       │   └── references/              #   audit-rules.md, test-cases.md
-│       ├── consumer-lag/          # Consumer lag analysis
-│       │   └── references/              #   test-cases.md
-│       ├── perf-review/           # Performance review
-│       │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
-│       ├── schema-review/         # Schema evolution review
-│       │   └── references/              #   compatibility-rules.md, test-cases.md
-│       ├── security-audit/        # Security posture audit
-│       │   └── references/              #   security-properties.md, test-cases.md
-│       ├── connector-review/      # Kafka Connect config review
-│       │   └── references/              #   test-cases.md
-│       └── dlq-review/            # Dead letter queue review
-│           └── references/              #   test-cases.md
-├── .claude/
-│   ├── settings.json                    # Repo-local: hooks, permissions, effort, spinner verbs (NOT shipped via plugin)
-│   └── hooks/                           # Repo-local hooks (e.g. ruff-format.sh)
-├── .claude-plugin/
-│   └── marketplace.json                 # Claude Code marketplace catalog (lists kafka-skills)
-└── plugins/
-    └── kafka-skills/                    # Installable Claude Code plugin
-        ├── .claude-plugin/plugin.json   # Plugin manifest (name, version, author, license)
-        ├── README.md                    # Plugin-level readme
-        └── skills/
-            ├── topic-audit/           # Topic config audit
-            │   └── references/              #   audit-rules.md, test-cases.md
-            ├── consumer-lag/          # Consumer lag analysis
-            │   └── references/              #   test-cases.md
-            ├── perf-review/           # Performance review
-            │   └── references/              #   producer-defaults.md, consumer-defaults.md, test-cases.md
-            ├── schema-review/         # Schema evolution review
-            │   └── references/              #   compatibility-rules.md, test-cases.md
-            ├── security-audit/        # Security posture audit
-            │   └── references/              #   security-properties.md, test-cases.md
-            ├── connector-review/      # Kafka Connect config review
-            │   └── references/              #   test-cases.md
-            └── dlq-review/            # Dead letter queue review
-                └── references/              #   test-cases.md
+.claude-plugin/
+├── marketplace.json                  # Claude Code marketplace catalog (lists kafka-skills)
+└── plugin.json                       # Claude Code plugin manifest
+.cursor-plugin/
+├── marketplace.json                  # Cursor marketplace catalog (lists kafka-skills)
+└── plugin.json                       # Cursor plugin manifest (references assets/logo.svg)
+assets/
+└── logo.svg                          # Plugin logo (consumed by the Cursor manifest)
+skills/                               # Shared SKILL.md payload (Claude Code + Cursor)
+├── topic-audit/      (+ references/)
+├── consumer-lag/     (+ references/)
+├── perf-review/      (+ references/)
+├── schema-review/    (+ references/)
+├── security-audit/   (+ references/)
+├── connector-review/ (+ references/)
+└── dlq-review/       (+ references/)
+AGENTS.md                             # Cursor agent memory (this file)
+CLAUDE.md                             # Claude Code agent memory
+README.md                             # Source of truth for end-user installation and usage
+CONTRIBUTING.md                       # How to add a new skill, conventions, release process
+TROUBLESHOOTING.md                    # Common issues (upload errors, triggering, MCP failures)
+LICENSE                               # MIT
+.gitignore                            # Includes .claude/ so Claude Code's per-user state stays out of git
 ```
 
-The Claude Code Kafka skills ship as a single plugin (`kafka-skills`) via the in-repo marketplace catalog (`lensesio`). Install with `/plugin marketplace add lensesio/agentic-engineering-for-apache-kafka` then `/plugin install kafka-skills@lensesio`. After install, skills are namespaced as `/kafka-skills:<skill-name>`. The parallel `.cursor/skills/` tree mirrors the same skill names without the plugin namespace - Cursor uses its own ecosystem.
+For Claude Code, the seven skills ship as the `kafka-skills` plugin via the `lensesio` marketplace catalog. Install with `/plugin marketplace add lensesio/agentic-engineering-for-apache-kafka` then `/plugin install kafka-skills@lensesio`. Skills auto-trigger from their description; for explicit slash invocation use `/kafka-skills:<skill-name>`.
+
+For Cursor, the same payload is exposed as a [Cursor plugin](https://cursor.com/docs/reference/plugins). Install through the [Cursor Marketplace](https://cursor.com/marketplace) or the `/add-plugin` command in the Cursor Agent. Cursor only requires `name` and `description` in skill frontmatter, so the same `SKILL.md` files serve both ecosystems without duplication. Claude-Code-only frontmatter fields (`allowed-tools`, `argument-hint`) are silently ignored by Cursor.
+
+The published plugin payload deliberately stays narrow - just the seven Kafka skills and their `references/`. Hook and settings recipes (PostToolUse formatting, Stop-hook verification, pre-approved permissions, custom spinner verbs) belong in each consuming team's own `.claude/settings.json`, not in a portable skills plugin.
 
 ## Skill Structure Conventions
 
 All skills follow the [Anthropic open standard](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) with progressive disclosure:
 
 - **YAML frontmatter** includes `name`, `description` (with trigger phrases and negative triggers), `license`, `metadata` (author, version, mcp-server, category) and `compatibility` (for MCP skills)
-- **SKILL.md body** contains the workflow steps (with expected output notes and validation gates), success criteria, examples and troubleshooting
-- **`references/` directory** holds detailed lookup tables and domain rules that Claude loads on demand (e.g., audit thresholds, config defaults, compatibility matrices)
+- **SKILL.md body** contains workflow steps with expected output notes and validation gates, success criteria, examples and troubleshooting
+- **`references/` directory** holds detailed lookup tables and domain rules loaded on demand (audit thresholds, config defaults, compatibility matrices)
 - Each skill includes a **Success Criteria** section with quantitative and qualitative metrics
 - Each skill includes an **Examples** section with concrete "User says X -> Claude does Y" scenarios
 - Each skill includes a **Troubleshooting** section for common errors and edge cases
 - Skills are categorised as `workflow-automation` or `mcp-enhancement` in their metadata
 - Every skill has a `references/test-cases.md` with triggering tests (should/should not trigger), functional tests (Given/When/Then) and performance baselines
-- Skills follow the [Anthropic open standard](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) and are portable across Claude.ai, Claude Code, Cursor and the API (`/v1/skills` endpoint)
 - Each skill's metadata includes `approach` (problem-first or tool-first) and `patterns` (sequential-workflow, iterative-refinement, context-aware-selection, domain-intelligence)
-- General troubleshooting (upload errors, triggering issues, MCP connection failures, large context) is in `TROUBLESHOOTING.md` at the repo root; skill-specific troubleshooting is in each SKILL.md
+- Skills are portable across Claude.ai, Claude Code, Cursor and the API (`/v1/skills` endpoint)
+- General troubleshooting (upload errors, triggering issues, MCP connection failures, large context) is in `TROUBLESHOOTING.md` at the repo root; skill-specific troubleshooting is in each `SKILL.md`
 
 ## Kafka Skills
 
-This project ships pre-configured Kafka skills, recommended for use with [Lenses MCP Server](https://github.com/lensesio/lenses-mcp):
+Recommended for use with the [Lenses MCP Server](https://github.com/lensesio/lenses-mcp):
 
-- **`/topic-audit`** - Audit topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata.
-- **`/consumer-lag`** - Analyse consumer group lag, diagnose root causes and suggest remediation.
-- **`/perf-review`** - Review producer/consumer performance configs in both the live cluster and codebase.
-- **`/schema-review`** - Review schema changes for compatibility, breaking changes, missing defaults and schema drift.
-- **`/security-audit`** - Audit authentication, encryption, secrets management and environment tier mismatches.
-- **`/connector-review`** - Review Kafka Connect configurations: error handling, DLQ setup, converters, transforms and task health.
-- **`/dlq-review`** - Review dead letter queue completeness: topic config, monitoring, metadata preservation and reprocessing paths.
+- **`/topic-audit`** - Audits topic configs against best practices: replication factor, retention, partitions, compaction, naming conventions, orphaned topics and missing metadata.
+- **`/consumer-lag`** - Analyses consumer group lag and diagnoses root causes (throughput bottlenecks, rebalancing, partition skew, stalled consumers) with remediation suggestions.
+- **`/perf-review`** - Reviews producer/consumer performance configs in both the live cluster and the codebase. Flags un-tuned defaults, anti-patterns and missing best practices.
+- **`/schema-review`** - Reviews schema changes (Avro, Protobuf, JSON Schema) for compatibility, breaking changes, missing defaults, naming issues and schema drift.
+- **`/security-audit`** - Audits authentication (SASL), encryption (SSL/TLS), secrets management and environment-tier mismatches across codebase and cluster.
+- **`/connector-review`** - Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health.
+- **`/dlq-review`** - Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment.
 
-## Setup
+## Conventions
 
-```bash
-# Install uv (if not already installed)
-curl -LsSf https://astral.sh/uv/install.sh | sh
+These match the conventions baked into the skill prompts and reflected in `README.md`. They describe how the skills expect Kafka code to be written in a consumer's project; they are not enforced on this repo's Markdown.
 
-# Sync dependencies (creates venv automatically)
-uv sync
+### Code style
 
-# Copy and configure environment
-cp .env.example .env
-# Edit .env with your Kafka and API credentials
-```
+- `snake_case` for functions, variables and file names
+- `PascalCase` for class names
+- `UPPER_SNAKE_CASE` for constants
+- Type hints and Google-style docstrings on all public functions
+- 100-character maximum line length
+- Absolute imports within the project
 
-## Common Commands
+### Kafka
 
-```bash
-# Run tests
-uv run pytest
+- Topic names: `<domain>.<entity>.<event>` (e.g. `orders.payment.completed`)
+- Consumer group IDs: `<service-name>-<purpose>` (e.g. `analytics-order-processor`)
+- Explicit serialisers/deserialisers (no implicit defaults)
+- Idempotent producers where possible
+- Context managers for all producers and consumers
+- Graceful shutdown with signal handlers
 
-# Run tests with coverage
-uv run pytest --cov=src
-
-# Lint code
-uv run ruff check src/ tests/
-
-# Format code
-uv run ruff format src/ tests/
-
-# Type checking
-uv run mypy src/
-
-# Add a dependency
-uv add <package>
-
-# Add a dev dependency
-uv add --dev <package>
-
-# Update dependencies
-uv lock --upgrade
-uv sync
-```
-
-## Coding Conventions
-
-- Use `snake_case` for functions, variables and file names
-- Use `PascalCase` for class names
-- Use `UPPER_SNAKE_CASE` for constants
-- All public functions require type hints and docstrings (Google style)
-- Maximum line length: 100 characters
-- Use absolute imports within the project
-
-## Kafka Conventions
-
-- Topic names: `<domain>.<entity>.<event>` (e.g., `orders.payment.completed`)
-- Consumer group IDs: `<service-name>-<purpose>` (e.g., `analytics-order-processor`)
-- Always specify explicit serialisers/deserialisers
-- Use idempotent producers when possible
-- Handle rebalancing gracefully in consumers
-
-## Testing
-
-- Unit tests go in `tests/unit/`
-- Integration tests go in `tests/integration/`
-- Use fixtures for Kafka client mocks (see `tests/conftest.py`)
-- Integration tests require a running Kafka instance (use Docker)
-- Mark integration tests with `@pytest.mark.integration`
-- Aim for >80% code coverage on new code
-
-## Environment Variables
-
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `KAFKA_BOOTSTRAP_SERVERS` | Kafka broker addresses | Yes |
-| `KAFKA_SECURITY_PROTOCOL` | Security protocol (PLAINTEXT, SSL, SASL_SSL) | No |
-| `ANTHROPIC_API_KEY` | Claude API key | Yes |
-
-## Important Patterns
-
-- Use context managers for Kafka producers/consumers
-- Implement graceful shutdown with signal handlers
-- Log all Kafka connection events and errors
-- Use structured logging (JSON format in production)
-- Retry transient failures with exponential backoff
-- Always give the AI agent a way to verify its work (run tests, lint, type check). This 2-3x the quality of the result
-
-## Things to Avoid
-
-- Don't commit `.env` files or credentials
-- Don't hardcode broker addresses or topics
-- Don't ignore Kafka delivery callbacks
-- Don't create consumers without proper error handling
-- Don't use `auto.offset.reset=latest` without understanding implications
-- Avoid synchronous produce calls in hot paths
-- Don't use `pip install` directly; use `uv add` to manage dependencies
-- Don't forget to commit `uv.lock` (it ensures reproducible builds)
-
-## Git Workflow
+### Git
 
 - Branch naming: `feature/`, `fix/`, `docs/`, `refactor/`
-- Write descriptive commit messages
-- Keep commits atomic and focused
+- Descriptive commit messages
+- Atomic, focused commits
 - Squash WIP commits before merging
+
+## Things to avoid when editing this repo
+
+- Don't create a parallel `.cursor/skills/` tree - `skills/` at the repo root is the single source of truth for both Cursor and Claude Code
+- Don't add `hooks`, `mcpServers` or `permissionMode` to plugin-shipped skills or subagents - the Claude Code plugin loader silently drops them
+- Don't change skill behaviour without updating the matching `references/test-cases.md` (triggering, functional and baseline layers)
+- Don't add Python or build infrastructure (`src/`, `tests/`, `pyproject.toml`, `uv.lock`) - the repo is intentionally a Markdown payload
+- Don't bump skill content without bumping `version` in both `.claude-plugin/plugin.json` and `.cursor-plugin/plugin.json`; without a version bump, `/plugin update kafka-skills@lensesio` won't pick up changes (see [CONTRIBUTING.md](CONTRIBUTING.md))
+- Don't break the published plugin layout (`.claude-plugin/`, `.cursor-plugin/`, `skills/`, `assets/`) without an issue first
+- Don't commit `.env` files, credentials, or any consumer-team configuration
 
 ## Resources
 
-- [Lenses MCP Server](https://github.com/lensesio/lenses-mcp)
-- [Lenses Documentation](https://docs.lenses.io/)
-- [Anthropic Claude API](https://docs.anthropic.com/)
-- [Anthropic - The Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
-- [Boris Cherny - Personal workflow tips](https://x.com/bcherny/status/2007179832300581177)
-- [Boris Cherny - Team tips](https://x.com/bcherny/status/2017742741636321619)
-- [Boris Cherny - Customisation guide](https://x.com/bcherny/status/2021699851499798911)
+- [Lenses MCP Server for Apache Kafka](https://github.com/lensesio/lenses-mcp)
+- [Lenses Community Edition](https://lenses.io/community-edition/)
+- [Lenses documentation](https://docs.lenses.io/)
+- [Anthropic's Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
+- [Cursor Skills documentation](https://cursor.com/docs/context/skills)
+- [Claude Code Skills documentation](https://code.claude.com/docs/en/skills)
+- [Claude Code Settings documentation](https://code.claude.com/docs/en/settings)
+- [Claude Code Hooks documentation](https://code.claude.com/docs/en/hooks)
+- [Claude Code Permissions documentation](https://code.claude.com/docs/en/permissions)

@@ -22,7 +22,7 @@ The skills follow the [Anthropic open standard for skills](https://resources.ant
 
 ## What's Included
 
-### 🌊 Kafka skills (observed against [Lenses MCP](https://github.com/lensesio/lenses-mcp))
+### 🌊 Kafka skills
 
 | Skill | Invocation | Description | Frequency |
 |-------|------------|-------------|-----------|
@@ -34,48 +34,32 @@ The skills follow the [Anthropic open standard for skills](https://resources.ant
 | **Connector Review** | `/connector-review` | Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. | Per-change |
 | **DLQ Review** | `/dlq-review` | Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment. | Periodic |
 
-### 🪝 Hooks, settings and customisation (Claude Code)
-
-| Feature | Description |
-|---------|-------------|
-| **PostToolUse formatting** | Auto-runs `ruff format` after every file Write/Edit to catch formatting issues before CI. |
-| **Stop hook for verification** | Runs `ruff check` and `pytest` when the agent finishes a turn, providing the verification feedback loop that materially improves output quality. |
-| **Effort level** | Defaults to `medium`. Raise to `high` for deeper reasoning, or `xhigh` if you are running Opus 4.6 and want maximum reasoning depth. |
-| **Pre-allowed permissions** | Wildcard patterns for safe commands (`uv run pytest *`, `uv run ruff *`, `gh pr *`) to reduce permission prompts. |
-| **Custom spinner verbs** | Kafka-themed spinner verbs ("Producing messages", "Committing offsets", etc.) for a little personality. |
-
-The example project ships with Python tooling (`uv`, `pytest`, `ruff`) because that is what the bundled hooks demonstrate. The skills themselves are language-agnostic; swap the hooks for your stack as needed.
-
 ### Cursor and Claude Code support
 
-Every skill is implemented for both Cursor and Claude Code. The hooks, settings and customisation features above are Claude Code only.
-
-There is some duplication across the two trees because there is currently no shared on-disk standard for editor skills. Each tool has its own conventions:
+Every skill is implemented for both Cursor and Claude Code from a single source of truth at the repo root - the repository itself IS the plugin.
 
 ```
-.cursor/                              .claude-plugin/
-└── skills/                           │   └── marketplace.json (Claude Code marketplace catalog)
-    ├── topic-audit/            plugins/kafka-skills/
-    │   └── references/               ├── .claude-plugin/plugin.json
-    ├── consumer-lag/           ├── README.md
-    │   └── references/               └── skills/
-    ├── perf-review/                ├── topic-audit/
-    │   └── references/                   │   └── references/
-    ├── schema-review/              ├── consumer-lag/
-    │   └── references/                   │   └── references/
-    ├── security-audit/             ├── perf-review/
-    │   └── references/                   │   └── references/
-    ├── connector-review/           ├── schema-review/
-    │   └── references/                   │   └── references/
-    └── dlq-review/                 ├── security-audit/
-        └── references/                   │   └── references/
-                                          ├── connector-review/
-.claude/                                  │   └── references/
-├── settings.json (hooks + perms)         └── dlq-review/
-└── hooks/                                    └── references/
+.claude-plugin/
+├── marketplace.json                  # Claude Code marketplace catalog
+└── plugin.json                       # Claude Code plugin manifest
+.cursor-plugin/
+├── marketplace.json                  # Cursor marketplace catalog
+└── plugin.json                       # Cursor plugin manifest
+assets/
+└── logo.svg                          # Plugin logo
+skills/                               # Shared SKILL.md payload (both ecosystems)
+├── topic-audit/   (+ references/)
+├── consumer-lag/  (+ references/)
+├── perf-review/   (+ references/)
+├── schema-review/ (+ references/)
+├── security-audit/(+ references/)
+├── connector-review/(+ references/)
+└── dlq-review/    (+ references/)
 ```
 
-For Claude Code, the seven skills ship as the `kafka-skills` plugin under `plugins/kafka-skills/`, with the marketplace catalog at `.claude-plugin/marketplace.json` (so the repo is itself an installable Claude Code marketplace). The repo-local `.claude/settings.json` and `.claude/hooks/` are for this repo's own development workflow (formatting/verification) and are not shipped with the plugin.
+For Claude Code, the seven skills ship as the `kafka-skills` plugin defined by [.claude-plugin/plugin.json](.claude-plugin/plugin.json) and listed in the marketplace catalog at [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) (so the repo is itself an installable Claude Code marketplace).
+
+For Cursor, the same payload is exposed as a [Cursor plugin](https://cursor.com/docs/reference/plugins) via [.cursor-plugin/plugin.json](.cursor-plugin/plugin.json), listed in the marketplace catalog at [.cursor-plugin/marketplace.json](.cursor-plugin/marketplace.json) so the repo is itself an installable Cursor marketplace. Cursor only requires `name` and `description` in skill frontmatter, which the existing skills already provide, so the same `SKILL.md` files serve both ecosystems without duplication. Claude-Code-only frontmatter fields (`allowed-tools`, `argument-hint`) are silently ignored by Cursor.
 
 The Claude Code skill variants include additional configuration: explicit tool restrictions, argument hints, PostToolUse and Stop hooks, effort level, wildcard permissions and custom spinner verbs.
 
@@ -85,9 +69,17 @@ All skills follow the [Anthropic open standard for skills](https://resources.ant
 
 ### For Cursor
 
-1. Copy `.cursor/` and `AGENTS.md` to your project root.
-2. If you plan to use the Kafka skills, configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in Cursor's MCP settings.
-3. Verify by asking: *"Run a topic audit on staging"* (or any environment name).
+The fastest way is the [Cursor Marketplace](https://cursor.com/marketplace). Install the `kafka-skills` plugin directly from the Cursor IDE:
+
+- Open the Cursor Marketplace, search for **Kafka Skills** and click *Install*, or
+- Run the `/add-plugin` command in the Cursor Agent and point it at `lensesio/agentic-engineering-for-apache-kafka`.
+
+This installs the seven Kafka skills via the marketplace catalog at [.cursor-plugin/marketplace.json](.cursor-plugin/marketplace.json) and the per-plugin manifest at [.cursor-plugin/plugin.json](.cursor-plugin/plugin.json). After install:
+
+1. Configure the [Lenses MCP server](https://github.com/lensesio/lenses-mcp) in Cursor's MCP settings (recommended for live-cluster skills - any Kafka MCP that exposes an equivalent tool surface will also work).
+2. Verify by asking: *"Run a topic audit on staging"* (or any environment name).
+
+**Prefer to copy files** (e.g. you want to fork and customise the skills locally)? Copy `skills/` into your project's `.cursor/skills/` and copy `AGENTS.md` to your project root, then configure your Kafka MCP server as above.
 
 ### For Claude Code
 
@@ -105,11 +97,11 @@ This installs the seven Kafka skills as a single `kafka-skills` plugin. After in
 
 Pull updates with `/plugin update kafka-skills@lensesio` whenever a new release is published.
 
-**Prefer to copy files** (e.g. you want to fork and customise the skills, or you want the bundled `.claude/settings.json` hooks)? Copy `plugins/kafka-skills/skills/` into your project's `.claude/skills/`, copy `.claude/settings.json` and `.claude/hooks/` if you want the formatting/verification hooks, and copy `CLAUDE.md` to your project root.
+**Prefer to copy files** (e.g. you want to fork and customise the skills locally)? Copy `skills/` into your project's `.claude/skills/` and copy `CLAUDE.md` to your project root.
 
 ### For Claude.ai
 
-1. Download the individual skill folder you want from `plugins/kafka-skills/skills/` (e.g. `topic-audit/`).
+1. Download the individual skill folder you want from `skills/` (e.g. `topic-audit/`).
 2. Zip the folder.
 3. Open Claude.ai → Settings → Capabilities → Skills.
 4. Click "Upload skill" and select the zipped folder.
@@ -237,7 +229,7 @@ No single team has seen every Kafka problem. The engineer running 200 topics on 
 
 We welcome contributions across all three of the engineer profiles these skills serve: data engineers (schemas, pipeline reliability, data quality), backend developers (clean produce/consume without getting buried in internals) and streaming developers (state, windowing, exactly-once). The Kafka surface is vast and these skills only scratch it. Kafka Streams, ksqlDB, MirrorMaker, deeper Schema Registry workflows, cluster upgrades, capacity planning, ACL audits, quota tuning and tiered storage review are all good candidates. PRs that add support for non-Lenses Kafka MCP servers are also welcome.
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose a new Kafka skill, the structural conventions every skill follows (frontmatter, `references/`, test cases, dual `.cursor/` + `.claude/` variants), and what good first contributions look like. Bug reports, doc improvements and prompt-engineering tweaks are all welcome too. Open an issue or a PR.
+See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose a new Kafka skill, the structural conventions every skill follows (frontmatter, `references/`, test cases, single source of truth shared by the Cursor and Claude Code plugins), and what good first contributions look like. Bug reports, doc improvements and prompt-engineering tweaks are all welcome too. Open an issue or a PR.
 
 ## Background and inspiration
 
@@ -251,13 +243,11 @@ The structure and patterns draw on Anthropic's [Complete Guide to Building Skill
 
 How those ideas show up in this repo:
 
-**From the personal workflow.** A PostToolUse formatting hook runs `ruff format` after every edit to catch the last 10% of formatting issues before CI (tip #9). Common safe commands are pre-approved in `.claude/settings.json` to avoid unnecessary permission prompts (tip #10). Most importantly, the Stop hook gives the agent a way to verify its work by running `ruff check` and `pytest` automatically — tip #13, the single most important tip.
-
 **From the team tips.** Both `CLAUDE.md` and `AGENTS.md` are maintained with project conventions, coding standards and Kafka-specific patterns. Invest in them and update after every correction (tip #3). Skills are committed to the repo so the whole team benefits, rather than living in individual prompt history (tip #4). Each skill is sharply scoped with explicit trigger phrases and negative triggers so the right context loads at the right moment, keeping the agent's working context clean (tip #8).
 
-**From the customisation guide.** The default effort level is set explicitly so it can be tuned per workload (tip #2). Wildcard permission patterns like `Bash(uv run pytest *)` and `Bash(gh pr *)` pre-approve safe operations (tip #5). A Stop hook runs linting and tests when the agent finishes a turn, creating the verification feedback loop that materially improves output quality (tip #9). Kafka-themed spinner verbs make the tool feel like part of the team (tip #10). All settings are checked into `.claude/settings.json` so the whole team shares the same configuration (tip #12).
-
 **From Anthropic's skill guide.** All skills follow the three-level progressive disclosure system (frontmatter → `SKILL.md` body → `references/`). Descriptions include trigger phrases so the agent knows when to load each skill, and frontmatter includes `license`, `metadata` (author, version, mcp-server) and `compatibility` fields per the open standard. Skills are categorised as `mcp-enhancement` and include negative triggers to prevent over-triggering. Each skill defines quantitative and qualitative success criteria, and workflow steps include validation gates that stop or adjust the workflow if a step produces unexpected results. Every skill has a `references/test-cases.md` with three layers: triggering tests, functional Given/When/Then scenarios, and performance baselines (tool calls, errors, user corrections with vs without the skill).
+
+This repository deliberately keeps the published plugin payload narrow - just the seven Kafka skills and their `references/`. Hook and settings recipes (PostToolUse formatting, Stop-hook verification, pre-approved permissions, custom spinner verbs) belong in your own project's `.claude/settings.json`, not in a portable skills plugin. Boris Cherny's [personal workflow](https://x.com/bcherny/status/2007179832300581177) and [customisation guide](https://x.com/bcherny/status/2021699851499798911) are the canonical references for setting those up in your own repo.
 
 ## Resources
 

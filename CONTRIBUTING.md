@@ -45,7 +45,7 @@ For anything beyond a small fix, **please open or comment on an issue first**. T
 
 - For **bug fixes that touch a single file or a docs typo**, you can go straight to a PR.
 - For **new skills, new hooks, new MCP variants or changes to skill structure conventions**, please open an issue first describing the proposal. We will discuss approach, scope and where it fits in the existing surface, then you can implement with confidence.
-- For **breaking changes** to the structure of `.cursor/` or `.claude/`, the repo layout, or the Anthropic open-standard frontmatter, an issue is mandatory.
+- For **breaking changes** to the plugin layout (`.claude-plugin/`, `.cursor-plugin/`, `skills/`, `assets/`) or the Anthropic open-standard frontmatter, an issue is mandatory.
 
 If you are unsure which category your change falls into, open an issue and ask. We would rather have a short discussion up front than ask you to rework an otherwise good PR.
 
@@ -85,7 +85,7 @@ Looking for somewhere to start? These are usually a good entry point:
 - **Add a test case** to a skill's `references/test-cases.md` that covers a real situation you have encountered.
 - **Improve a description** so a skill triggers more reliably for phrasing your team actually uses.
 - **Tighten reference material** in `references/` (audit thresholds, default values, compatibility matrices) when you spot something out of date.
-- **Port a small change** between the `.cursor/` and `.claude/` trees if one tree drifts ahead.
+- **Tighten a SKILL.md description or trigger phrase** in `skills/<name>/SKILL.md` based on real-world prompt wording you have seen.
 
 If you are new to the project and unsure where to start, open a discussion or comment on an issue and ask. We will help you find something the right size.
 
@@ -116,31 +116,29 @@ Most contributions to this repository are Markdown and YAML, so no build step is
 
 ### Adding a new skill
 
-Every skill ships in **both** trees: `.cursor/skills/<skill-name>/` (Cursor) and `plugins/kafka-skills/skills/<skill-name>/` (Claude Code plugin). There is some unavoidable duplication today because there is no shared on-disk standard for editor skills. Until there is, a contribution that only updates one tree will be asked to update the other.
+Every skill lives in a single source of truth at `skills/<skill-name>/` at the repo root. The same `SKILL.md` is consumed by both the Claude Code plugin (via `.claude-plugin/plugin.json`) and the Cursor plugin (via `.cursor-plugin/plugin.json`). Cursor silently ignores Claude-Code-specific frontmatter fields, so there is no duplicate Cursor tree to maintain.
 
 To scaffold a new skill:
 
 1. Pick a kebab-case `name` (for example `kafka-streams-review`).
-2. Create the two folders:
+2. Create the folder:
    ```
-   .cursor/skills/<name>/SKILL.md
-   .cursor/skills/<name>/references/test-cases.md
-   plugins/kafka-skills/skills/<name>/SKILL.md
-   plugins/kafka-skills/skills/<name>/references/test-cases.md
+   skills/<name>/SKILL.md
+   skills/<name>/references/test-cases.md
    ```
 3. Use an existing skill (for example `topic-audit`) as a template. Match the frontmatter fields, the section ordering and the progressive disclosure pattern.
-4. Add the skill to the tables in `README.md`, `AGENTS.md` and `CLAUDE.md`, and to the table in `plugins/kafka-skills/README.md`.
+4. Add the skill to the tables in `README.md`, `AGENTS.md` and `CLAUDE.md`.
 5. Read [TROUBLESHOOTING.md](TROUBLESHOOTING.md) so you avoid the most common authoring mistakes (frontmatter, trigger phrases, over-triggering).
-6. Bump the plugin version in [`plugins/kafka-skills/.claude-plugin/plugin.json`](plugins/kafka-skills/.claude-plugin/plugin.json) (typically a minor bump for a new skill) so existing users get the new skill on their next `/plugin update`. See [Releasing the Claude Code plugin](#releasing-the-claude-code-plugin).
+6. Bump the plugin version in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) and [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) (typically a minor bump for a new skill) so existing users get the new skill on their next `/plugin update`. See [Releasing the Claude Code plugin](#releasing-the-claude-code-plugin).
 
 ## Skill structure conventions
 
 All skills must follow the [Anthropic open standard for skills](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) with progressive disclosure. Concretely:
 
-- **YAML frontmatter** common to both trees: `name`, `description` (including trigger phrases and negative triggers), `license`, `metadata` (author, version, mcp-server, category, approach, patterns, tags), `compatibility` (for MCP skills).
-- **Claude Code-specific frontmatter** (only in `plugins/kafka-skills/skills/<name>/SKILL.md`): `allowed-tools` to restrict the tool surface, `argument-hint` to document expected arguments, and `disable-model-invocation: true` for skills that should only run on explicit invocation. Cursor does not read these fields, so they are not required in the `.cursor/` variants.
+- **YAML frontmatter** read by both ecosystems: `name`, `description` (including trigger phrases and negative triggers), `license`, `metadata` (author, version, mcp-server, category, approach, patterns, tags), `compatibility` (for MCP skills).
+- **Claude-Code-only frontmatter** (still kept in the same `SKILL.md`, ignored by Cursor): `allowed-tools` to restrict the tool surface, `argument-hint` to document expected arguments, and `disable-model-invocation: true` for skills that should only run on explicit invocation.
 - **SKILL.md body** with workflow steps that include expected output notes and validation gates, a Success Criteria section with quantitative and qualitative metrics, an Examples section with concrete "User says X → Claude does Y" scenarios, and a Troubleshooting section for skill-specific edge cases.
-- **`references/` directory** for detailed lookup tables loaded on demand (audit thresholds, config defaults, compatibility matrices). Keep `SKILL.md` itself under ~5,000 words; offload depth to `references/`. Keep `references/` byte-identical between the `.cursor/skills/` and `plugins/kafka-skills/skills/` trees.
+- **`references/` directory** for detailed lookup tables loaded on demand (audit thresholds, config defaults, compatibility matrices). Keep `SKILL.md` itself under ~5,000 words; offload depth to `references/`.
 - **`references/test-cases.md`** with three layers:
   - Triggering tests (should trigger / should not trigger phrases).
   - Functional tests in Given/When/Then form.
@@ -148,7 +146,7 @@ All skills must follow the [Anthropic open standard for skills](https://resource
 - **Skill category** in metadata: `workflow-automation` or `mcp-enhancement`.
 - **Negative triggers** in the description ("Do NOT use for X") so the skill stays sharply scoped.
 
-The shared conventions apply to both the `.cursor/` and `.claude/` variants. The Claude Code variant may include additional fields (`allowed-tools`, `argument-hint`, `disable-model-invocation`, hooks-driven behaviour) and inline-bash pre-computation in workflow steps; the Cursor variant should not regress the descriptor quality just because Cursor exposes fewer fields. Body drift between the two variants should be limited to these tool-specific differences.
+A single `SKILL.md` per skill serves both Cursor and Claude Code. Claude-Code-only frontmatter (`allowed-tools`, `argument-hint`, `disable-model-invocation`) and Claude-Code substitution tokens (`$ARGUMENTS`) live alongside the shared content; Cursor reads only the fields it understands and treats unknown frontmatter as a no-op. Avoid creating a separate Cursor-flavoured copy of any skill - keep one source of truth.
 
 For a fuller treatment, see the [Skill Structure Conventions](AGENTS.md#skill-structure-conventions) section in `AGENTS.md` and `CLAUDE.md`.
 
@@ -159,7 +157,7 @@ There is no unit test runner for skill content itself, so we rely on a few light
 1. **Trigger tests.** In a session with the skill loaded, ask the questions listed in `references/test-cases.md`. Verify that "should trigger" prompts load the skill and "should not trigger" prompts do not.
 2. **Functional tests.** Walk through at least the primary Given/When/Then scenario. Verify the agent follows the workflow steps, calls the expected MCP tools, and produces output in the documented shape.
 3. **Self-check via the agent.** Ask Claude (or Cursor's agent): *"When would you use the `<skill-name>` skill?"* The answer should match the description. If not, the description needs more specific trigger phrases.
-4. **Cross-tool sanity.** If you changed both the `.cursor/` and `.claude/` variants, briefly verify each in its host tool. If you only have access to one, say so in the PR and a maintainer will verify the other.
+4. **Cross-tool sanity.** Verify the skill in both Cursor and Claude Code. If you only have access to one, say so in the PR and a maintainer will verify the other.
 5. **Lint and format Python tooling** (only if you touched it):
    ```bash
    uv run ruff check src/ tests/
@@ -185,7 +183,7 @@ A good PR is small, focused and easy to review. To make ours an easy "yes":
 ### Review process
 
 - A maintainer will triage your PR within a few working days. If you have not heard back after a week, feel free to ping the PR.
-- Reviews focus on: correctness of skill behaviour, clarity of descriptions and trigger phrases, depth and accuracy of `references/`, parity between `.cursor/` and `.claude/`, and overall fit with existing conventions.
+- Reviews focus on: correctness of skill behaviour, clarity of descriptions and trigger phrases, depth and accuracy of `references/`, behaviour parity between Cursor and Claude Code (since both consume the same `SKILL.md`), and overall fit with existing conventions.
 - We may ask for changes. We try to bundle review comments rather than drip-feed them. If a reviewer is asking for something that feels at odds with another comment, please call it out.
 - Once two maintainers approve (or one maintainer for low-risk changes), we will squash and merge.
 
@@ -194,7 +192,7 @@ A good PR is small, focused and easy to review. To make ours an easy "yes":
 We will push back on PRs that:
 
 - Add a skill that overlaps significantly with an existing one without a clear differentiator.
-- Update only one of the `.cursor/skills/` and `plugins/kafka-skills/skills/` trees when both apply.
+- Introduce a parallel skill tree outside `skills/` at the repo root (we deliberately maintain a single source of truth for both Cursor and Claude Code).
 - Hardcode broker addresses, topic names, credentials or environment names.
 - Embed long reference material inline in `SKILL.md` instead of using `references/`.
 - Significantly inflate `SKILL.md` past the recommended size without justification.
@@ -206,7 +204,7 @@ None of these are personal — they are usually a sign that a short discussion i
 
 The Kafka skills are distributed as the `kafka-skills` plugin via the in-repo `lensesio` marketplace ([`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json)). End users install via `/plugin install kafka-skills@lensesio`. To cut a new release:
 
-1. **Bump the version.** Edit `version` in [`plugins/kafka-skills/.claude-plugin/plugin.json`](plugins/kafka-skills/.claude-plugin/plugin.json) following [SemVer](https://semver.org/):
+1. **Bump the version.** Edit `version` in [`.claude-plugin/plugin.json`](.claude-plugin/plugin.json) (and matching [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) for Cursor users) following [SemVer](https://semver.org/):
    - **Patch** (`0.1.0` -> `0.1.1`): wording tweaks, reference updates, no workflow change.
    - **Minor** (`0.1.0` -> `0.2.0`): new skill added, new step in an existing skill, new optional argument.
    - **Major** (`0.1.0` -> `1.0.0`): renamed skill, removed skill, breaking change to required arguments or expected MCP tool set.
