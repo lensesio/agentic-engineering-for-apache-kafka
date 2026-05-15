@@ -1,0 +1,31 @@
+{
+  "name": "lensesio",
+  "owner": {
+    "name": "Lenses.io",
+    "email": "info@lenses.io"
+  },
+  "metadata": {
+    "description": "Lenses-curated Kafka agent skills for Cursor, recommended for use with the Lenses MCP Server"
+  },
+  "plugins": [
+    {
+      "name": "kafka-skills",
+      "source": ".",
+      "description": "Seven Kafka skills (topic audit, consumer lag, perf review, schema, security, connectors, DLQ) powered by the Lenses MCP server",
+      "category": "data-engineering",
+      "tags": ["kafka", "lenses", "mcp", "audit", "observability"],
+      "homepage": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
+      "repository": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
+      "license": "MIT",
+      "skills": [
+        "./skills/topic-audit",
+        "./skills/consumer-lag",
+        "./skills/perf-review",
+        "./skills/schema-review",
+        "./skills/security-audit",
+        "./skills/connector-review",
+        "./skills/dlq-review"
+      ]
+    }
+  ]
+}

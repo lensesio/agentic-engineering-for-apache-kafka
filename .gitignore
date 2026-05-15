@@ -1,0 +1,20 @@
+# Claude Code per-user state and any locally regenerated settings
+.claude/
+
+# Cursor per-user state
+.cursor/mcp.local.json
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editors / IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Local environment / secrets
+.env
+.env.*
+!.env.example

@@ -2,7 +2,7 @@
 
 General troubleshooting guide for agent skills in this repository. For skill-specific issues, see the Troubleshooting section in each skill's `SKILL.md`. Based on [Anthropic's skill guide, Chapter 5](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf).
 
-## Skill Won't Upload
+## Skill won't upload
 
 ### "Could not find SKILL.md in uploaded folder"
 
@@ -46,7 +46,7 @@ name: My Cool Skill
 name: my-cool-skill
 ```
 
-## Skill Doesn't Trigger
+## Skill doesn't trigger
 
 **Symptom**: Skill never loads automatically when you ask a relevant question.
 
@@ -59,7 +59,7 @@ name: my-cool-skill
 
 **Solution**: Revise the `description` field to include specific trigger phrases. See any of the skills in this repo for examples of good descriptions with explicit trigger phrases.
 
-## Skill Triggers Too Often
+## Skill triggers too often
 
 **Symptom**: Skill loads for unrelated queries.
 
@@ -71,7 +71,7 @@ name: my-cool-skill
 
 All skills in this repo already include negative triggers. See any `SKILL.md` for examples.
 
-## MCP Connection Issues
+## MCP connection issues
 
 **Symptom**: Skill loads but Lenses MCP tool calls fail.
 
@@ -80,7 +80,7 @@ All skills in this repo already include negative triggers. See any `SKILL.md` fo
 1. **Verify MCP server is connected**
    - Cursor: Check MCP settings panel
    - Claude.ai: Settings > Extensions > Lenses
-   - Claude Code: Check `.claude/settings.json` and MCP config
+   - Claude Code: Check `~/.claude.json` (user) or `.claude/settings.json` (project) for MCP server config
    - Should show "Connected" status
 
 2. **Check authentication**
@@ -97,7 +97,7 @@ All skills in this repo already include negative triggers. See any `SKILL.md` fo
    - Tool names are case-sensitive
    - Check the [Lenses MCP documentation](https://github.com/lensesio/lenses-mcp) for the latest tool names
 
-## Instructions Not Followed
+## Instructions not followed
 
 **Symptom**: Skill loads but Claude doesn't follow the workflow steps.
 
@@ -128,7 +128,7 @@ Quality is more important than speed.
 Do not skip validation steps.
 ```
 
-## Large Context Issues
+## Large context issues
 
 **Symptom**: Skill seems slow or responses are degraded.
 
@@ -143,7 +143,111 @@ Do not skip validation steps.
 
 2. **Reduce enabled skills** - If you have many skills enabled, consider selective enablement. Only enable what you need for the current task.
 
-## Kafka-Specific Issues
+## Claude Code plugin install issues
+
+### `/plugin install kafka-skills@lensesio` fails with "marketplace not found"
+
+**Cause**: The `lensesio` marketplace hasn't been added yet.
+
+**Solution**: Run `/plugin marketplace add lensesio/agentic-engineering-for-apache-kafka` first, then retry the install. List configured marketplaces with `/plugin marketplace list`.
+
+### Skills not available after install
+
+**Cause**: Plugin skills are namespaced under the plugin name. They auto-trigger from natural-language requests, but explicit slash invocation requires the namespace.
+
+**Solution**: Use `/kafka-skills:topic-audit` (and similar for the other six). Confirm install succeeded with `/plugin list` - you should see `kafka-skills@lensesio` enabled.
+
+### `claude plugin validate` errors after editing the marketplace
+
+**Cause**: Schema mismatch. As of Claude Code 2.1.x the validator rejects an unrecognised top-level `description` on the marketplace; it must live under `metadata`.
+
+**Solution**: Move marketplace-level `description` (and `version`) under `"metadata": { ... }` per the official [marketplace schema](https://code.claude.com/docs/en/plugin-marketplaces#optional-fields).
+
+### `/plugin update kafka-skills` fails with "Plugin not found"
+
+**Cause**: When more than one marketplace is registered, the plain plugin name is ambiguous.
+
+**Solution**: Use the namespaced form: `/plugin update kafka-skills@lensesio`.
+
+### Auto-update fails for the GitHub-hosted marketplace
+
+**Cause**: Background updates run without your interactive git credential helper, so private repos and rate-limited GitHub access can fail.
+
+**Solution**: Set `GITHUB_TOKEN` (or `GH_TOKEN`) in your shell profile. See [Private repositories](https://code.claude.com/docs/en/plugin-marketplaces#private-repositories) for the full list of supported providers.
+
+For more, see Anthropic's [Plugin marketplaces troubleshooting](https://code.claude.com/docs/en/plugin-marketplaces#troubleshooting).
+
+## Cursor plugin install issues
+
+### `/add-plugin` cannot find the plugin
+
+**Cause**: The plugin reference must point at the GitHub `owner/repo`, not at a `.cursor-plugin/` subpath.
+
+**Solution**: Use `/add-plugin lensesio/agentic-engineering-for-apache-kafka`. Cursor reads [`.cursor-plugin/marketplace.json`](.cursor-plugin/marketplace.json) at the repo root, so no subpath is needed.
+
+### Plugin installs but skills don't show up
+
+**Cause**: The skill files are present but the agent has not reloaded them, or the per-skill folder layout is wrong.
+
+**Solution**:
+
+1. Reload the Cursor window (Command Palette → *Developer: Reload Window*).
+2. Confirm each skill folder under your project's plugin install location contains an `SKILL.md` (not `skill.md` or `README.md`). The seven expected folders are `topic-audit`, `consumer-lag`, `perf-review`, `schema-review`, `security-audit`, `connector-review`, `dlq-review`.
+3. Confirm each `SKILL.md` has both `name` and `description` in YAML frontmatter - Cursor silently ignores any skill missing either field.
+
+### Skill loads but `/<skill-name>` slash command does nothing
+
+**Cause**: Cursor exposes plugin skills as agent capabilities, not as standalone slash commands like Claude Code does.
+
+**Solution**: Trigger the skill from a natural-language prompt (*"Run a topic audit on staging"*) rather than typing `/topic-audit` directly. The plugin's logo and skill list appear in the Cursor Agent's plugin panel once the install succeeds.
+
+### Plugin doesn't pick up a new release
+
+**Cause**: Cursor caches the marketplace catalog.
+
+**Solution**: Remove and reinstall the plugin via the Cursor Marketplace UI, or run `/add-plugin lensesio/agentic-engineering-for-apache-kafka` again. A `version` bump in [`.cursor-plugin/plugin.json`](.cursor-plugin/plugin.json) is required for Cursor to consider a new release distinct from the cached one.
+
+For more, see [Cursor plugin reference](https://cursor.com/docs/reference/plugins) and [Cursor Skills documentation](https://cursor.com/docs/context/skills).
+
+## Skills CLI install issues (`npx skills`)
+
+### `npx skills add lensesio/agentic-engineering-for-apache-kafka` reports "No skills found"
+
+**Cause**: The CLI did not detect any `SKILL.md` in the discovery paths it knows about.
+
+**Solution**: This repo declares its skills explicitly in the `skills` array in [`.claude-plugin/marketplace.json`](.claude-plugin/marketplace.json). Make sure your CLI version is recent enough to honour the [plugin-manifest discovery format](https://github.com/vercel-labs/skills#plugin-manifest-discovery): `npx skills@latest add lensesio/agentic-engineering-for-apache-kafka --list` will force-fetch the latest CLI.
+
+### `--skill <name>` reports "skill not found"
+
+**Cause**: The seven valid skill names are the unprefixed forms in each `SKILL.md` frontmatter: `topic-audit`, `consumer-lag`, `perf-review`, `schema-review`, `security-audit`, `connector-review`, `dlq-review`.
+
+**Solution**: Use one of the seven names above. The [skills.sh listing](https://skills.sh/lensesio/agentic-engineering-for-apache-kafka) may temporarily show `kafka-`-prefixed historical names from earlier releases - those names are stale and were retired in `v2.0.0`.
+
+### Skill installs successfully but the agent doesn't load it
+
+**Cause**: The CLI installs into the per-agent folder of whichever agents it auto-detected (for Cursor: `.agents/skills/`, for Claude Code: `.claude/skills/`, etc. - see the [Supported Agents table](https://github.com/vercel-labs/skills#supported-agents)). If the agent is configured to read from a different folder, it won't see the install.
+
+**Solution**:
+
+1. Run `npx skills list` to see what was installed where.
+2. If the path is wrong, reinstall with an explicit `-a <agent>` flag, e.g. `npx skills add lensesio/agentic-engineering-for-apache-kafka -a cursor -y`.
+3. Confirm the target folder is on your agent's skill-discovery path. For Cursor, see [Cursor Skills documentation](https://cursor.com/docs/context/skills).
+
+### Symlink errors on Windows or restricted filesystems
+
+**Cause**: The CLI defaults to symlinking from each agent's skill folder to a canonical copy. Some Windows setups, WSL mounts and CI containers don't allow symlinks for the calling user.
+
+**Solution**: Re-run with `--copy` to use independent file copies instead: `npx skills add lensesio/agentic-engineering-for-apache-kafka --copy -y`.
+
+### Permission denied writing to the install folder
+
+**Cause**: The per-agent skill folder (e.g. `~/.cursor/skills/` for global, `.agents/skills/` for project) is owned by another user or mounted read-only.
+
+**Solution**: Check ownership with `ls -la`. For project-scoped installs, run `npx skills add` from a working tree you own. For global installs, ensure your shell user owns the per-agent global path (the [Supported Agents table](https://github.com/vercel-labs/skills#supported-agents) lists each path).
+
+For more, see the [Skills CLI README](https://github.com/vercel-labs/skills) and the [Agent Skills Specification](https://agentskills.io).
+
+## Kafka-specific issues
 
 ### Environment name not recognised
 
@@ -161,4 +265,4 @@ Do not skip validation steps.
 
 **Cause**: Schema Registry is not configured in the Lenses environment.
 
-**Solution**: This is a valid finding - skills like `kafka-schema-review` will report this as a governance gap rather than treating it as an error.
+**Solution**: This is a valid finding - skills like `schema-review` will report this as a governance gap rather than treating it as an error.

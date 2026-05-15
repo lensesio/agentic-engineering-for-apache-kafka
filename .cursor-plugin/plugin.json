@@ -1,0 +1,34 @@
+{
+  "name": "kafka-skills",
+  "displayName": "Kafka Skills",
+  "version": "2.0.0",
+  "description": "Seven Kafka agent skills for topic audit, consumer lag, performance, schema, security, connectors, and DLQ review. Recommended with the Lenses MCP server.",
+  "author": {
+    "name": "Lenses.io",
+    "email": "info@lenses.io"
+  },
+  "homepage": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
+  "repository": "https://github.com/lensesio/agentic-engineering-for-apache-kafka",
+  "license": "MIT",
+  "logo": "assets/logo.svg",
+  "keywords": [
+    "kafka",
+    "lenses",
+    "mcp",
+    "audit",
+    "observability",
+    "topic-audit",
+    "consumer-lag",
+    "schema-registry",
+    "kafka-connect",
+    "dlq"
+  ],
+  "category": "data-engineering",
+  "tags": [
+    "kafka",
+    "lenses",
+    "mcp",
+    "audit",
+    "observability"
+  ]
+}
