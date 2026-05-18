@@ -1,8 +1,8 @@
 {
   "name": "kafka-skills",
   "displayName": "Kafka Skills",
-  "version": "2.1.1",
-  "description": "Seven Kafka agent skills for topic audit, consumer lag, performance, schema, security, connectors, and DLQ review. Recommended with the Lenses MCP server.",
+  "version": "2.3.0",
+  "description": "Eight Kafka agent skills for topic audit, consumer lag, performance, schema, security, connectors, DLQ review and Python client scaffolding. Recommended with the Lenses MCP server.",
   "author": {
     "name": "Lenses.io",
     "email": "info@lenses.io"

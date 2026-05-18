@@ -31,6 +31,7 @@ The quickest way to try the skills end-to-end is with the free [Lenses Community
 | **Security Audit** | `/kafka-security-audit` | Audits authentication (SASL), encryption (SSL/TLS), secrets management and environment-tier mismatches across codebase and cluster. | Monthly/pre-deploy |
 | **Connector Review** | `/kafka-connector-review` | Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. | Per-change |
 | **DLQ Review** | `/kafka-dlq-review` | Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment. | Periodic |
+| **Python Client** | `/kafka-python-client` | Scaffolds a production-ready Python Kafka producer and consumer using `confluent-kafka-python`, with Schema Registry, graceful shutdown, idempotent producer and tests. Discovers the target topic, partition count and registered schema from the live cluster via MCP before asking. | Per-project |
 
 ### Claude Code and Cursor support
 
@@ -52,7 +53,8 @@ skills/                     # Shared SKILL.md definitions and references
 ├── kafka-schema-review/
 ├── kafka-security-audit/
 ├── kafka-connector-review/
-└── kafka-dlq-review/
+├── kafka-dlq-review/
+└── kafka-python-client/
 ```
 
 All skills follow the [Anthropic open standard for skills](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) with progressive disclosure: frontmatter with trigger phrases, negative triggers and categorised metadata; a `references/` directory for detailed lookup tables and test cases loaded on demand; success criteria with quantitative and qualitative metrics; concrete usage examples; troubleshooting for common errors; and validation gates between workflow steps.
@@ -81,7 +83,7 @@ This cross-tool [Skills CLI](https://github.com/vercel-labs/skills) (`npx skills
 
 The CLI auto-detects the agents you have installed (Cursor, Claude Code, Codex, OpenCode, Continue and [50+ others](https://github.com/vercel-labs/skills#supported-agents)) and copies the skills into the right per-agent folder.
 
-To install only a specific skill (the seven valid skill names are `kafka-topic-audit`, `kafka-consumer-lag`, `kafka-perf-review`, `kafka-schema-review`, `kafka-security-audit`, `kafka-connector-review`, `kafka-dlq-review`):
+To install only a specific skill (the eight valid skill names are `kafka-topic-audit`, `kafka-consumer-lag`, `kafka-perf-review`, `kafka-schema-review`, `kafka-security-audit`, `kafka-connector-review`, `kafka-dlq-review`, `kafka-python-client`):
 
 ```bash
 npx skills add lensesio/agentic-engineering-for-apache-kafka --skill kafka-topic-audit
@@ -124,6 +126,7 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for how to propose a new Kafka skill, the
 - [Lenses MCP Server for Apache Kafka](https://github.com/lensesio/lenses-mcp)
 - [Lenses Community Edition](https://lenses.io/community-edition/)
 - [Lenses documentation](https://docs.lenses.io/)
+- [`confluent-kafka-python`](https://github.com/confluentinc/confluent-kafka-python) - the Python Kafka client library used by the `kafka-python-client` skill (requires Python 3.10+)
 - [Anthropic's Complete Guide to Building Skills for Claude](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf)
 - [Cursor Skills documentation](https://cursor.com/docs/context/skills)
 - [Claude Code Skills documentation](https://code.claude.com/docs/en/skills)
