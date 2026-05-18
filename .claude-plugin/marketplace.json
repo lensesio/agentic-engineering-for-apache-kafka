@@ -10,7 +10,7 @@
   "plugins": [
     {
       "name": "kafka-skills",
-      "source": ".",
+      "source": "./",
       "description": "Seven Kafka skills (topic audit, consumer lag, perf review, schema, security, connectors, DLQ) powered by the Lenses MCP server",
       "category": "data-engineering",
       "tags": ["kafka", "lenses", "mcp", "audit", "observability"],
