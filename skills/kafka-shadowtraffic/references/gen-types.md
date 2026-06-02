@@ -8,8 +8,8 @@ Use this table to pick the right `_gen` for each schema field. Prefer semantic o
 |---|---|---|
 | `string` (generic) | `{"_gen": "string", "expr": "#{Lorem.word}"}` | random word |
 | `string` (uuid pattern) | `{"_gen": "uuid"}` | `"3fa85f64-..."` |
-| `int`, `integer` | `{"_gen": "uniformDistribution", "bounds": [0, 1000]}` | `42` |
-| `long` | `{"_gen": "uniformDistribution", "bounds": [0, 1000000]}` | `84321` |
+| `int`, `integer` | `{"_gen": "uniformDistribution", "bounds": [0, 1000], "decimals": 0}` | `42` |
+| `long` | `{"_gen": "uniformDistribution", "bounds": [0, 1000000], "decimals": 0}` | `84321` |
 | `float`, `double`, `number` | `{"_gen": "uniformDistribution", "bounds": [0, 1000], "decimals": 2}` | `3.14` |
 | `boolean` | `{"_gen": "boolean"}` | `true` |
 | `null` | `null` | literal null |
@@ -36,10 +36,10 @@ When the field name matches a pattern below, prefer the semantic generator over 
 | `*ip*` | `{"_gen": "string", "expr": "#{Internet.ipV4Address}"}` | |
 | `*username*`, `*user_name*` | `{"_gen": "string", "expr": "#{Name.username}"}` | |
 | `*amount*`, `*price*`, `*cost*`, `*total*` | `{"_gen": "uniformDistribution", "bounds": [1, 1000], "decimals": 2}` | Monetary values |
-| `*quantity*`, `*count*`, `*qty*` | `{"_gen": "uniformDistribution", "bounds": [1, 100]}` | Integer counts |
+| `*quantity*`, `*count*`, `*qty*` | `{"_gen": "uniformDistribution", "bounds": [1, 100], "decimals": 0}` | Integer counts |
 | `*percent*`, `*rate*`, `*ratio*` | `{"_gen": "uniformDistribution", "bounds": [0, 1], "decimals": 4}` | 0-1 ratio |
 | `*score*`, `*rating*` | `{"_gen": "uniformDistribution", "bounds": [1, 5], "decimals": 1}` | Ratings |
-| `*age*` | `{"_gen": "uniformDistribution", "bounds": [18, 80]}` | |
+| `*age*` | `{"_gen": "uniformDistribution", "bounds": [18, 80], "decimals": 0}` | |
 | `*timestamp*`, `*createdAt*`, `*updatedAt*`, `*time*`, `*date*` | `{"_gen": "now"}` | Current epoch ms |
 | `*status*`, `*state*` | `{"_gen": "oneOf", "choices": [...from schema enum...]}` | Use actual schema symbols |
 | `*type*`, `*kind*`, `*category*` | `{"_gen": "oneOf", "choices": [...from schema enum...]}` | Use actual schema symbols |
@@ -108,7 +108,7 @@ Generate arrays with a random element count:
 {
   "_gen": "repeatedly",
   "target": {"_gen": "uuid"},
-  "times": {"_gen": "uniformDistribution", "bounds": [1, 5]}
+  "times": {"_gen": "uniformDistribution", "bounds": [1, 5], "decimals": 0}
 }
 ```
 

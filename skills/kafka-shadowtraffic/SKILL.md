@@ -127,7 +127,7 @@ For each field in the discovered schema, select the most semantically appropriat
 | `*status*`, `*state*`, `*type*` with enum values | `{"_gen": "oneOf", "choices": [...enum values from schema...]}` |
 | `*timestamp*`, `*createdAt*`, `*updatedAt*` | `{"_gen": "now"}` |
 | boolean | `{"_gen": "boolean"}` |
-| integer count | `{"_gen": "uniformDistribution", "bounds": [0, 100]}` |
+| integer count | `{"_gen": "uniformDistribution", "bounds": [0, 100], "decimals": 0}` |
 | nested object | recurse — apply same rules to each nested field |
 | array field | `{"_gen": "repeatedly", "target": <element gen>, "times": {"_gen": "uniformDistribution", "bounds": [1, 5]}}` |
 
