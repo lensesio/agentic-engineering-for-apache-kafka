@@ -25,6 +25,8 @@
         "./skills/kafka-python-client",
         "./skills/kafka-schema-review",
         "./skills/kafka-security-audit",
+        "./skills/kafka-shadowtraffic",
+        "./skills/kafka-shadowtraffic-java",
         "./skills/kafka-topic-audit"
       ]
     }
