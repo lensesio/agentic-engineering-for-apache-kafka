@@ -32,6 +32,8 @@ The quickest way to try the skills end-to-end is with the free [Lenses Community
 | **Connector Review** | `/kafka-connector-review` | Reviews Kafka Connect configurations: error handling, DLQ setup, converters, transforms, task count and task health. | Per-change |
 | **DLQ Review** | `/kafka-dlq-review` | Reviews dead letter queue completeness: topic config, monitoring, metadata preservation, retry logic, reprocessing paths and connector DLQ alignment. | Periodic |
 | **Python Client** | `/kafka-python-client` | Scaffolds a production-ready Python Kafka producer and consumer using `confluent-kafka-python`, with Schema Registry, graceful shutdown, idempotent producer and tests. Discovers the target topic, partition count and registered schema from the live cluster via MCP before asking. | Per-project |
+| **ShadowTraffic** | `/kafka-shadowtraffic` | Generates a ready-to-run `shadowtraffic-config.json` and Docker command to populate a Kafka topic with realistic synthetic data. Discovers the target topic, its key and value schemas and the correct serializers from the live cluster via MCP before writing the config. | On-demand |
+| **ShadowTraffic Java** | `/kafka-shadowtraffic-java` | Scaffolds a JUnit 5 TestContainers class that spins up ShadowTraffic in-process to stream synthetic data into a Kafka topic during tests. Chains the ShadowTraffic skill to build the config, then wires Kafka, optional Schema Registry and ShadowTraffic containers together for Maven or Gradle projects. | Per-project |
 
 ### Claude Code and Cursor support
 
@@ -54,7 +56,9 @@ skills/                     # Shared SKILL.md definitions and references
 ├── kafka-security-audit/
 ├── kafka-connector-review/
 ├── kafka-dlq-review/
-└── kafka-python-client/
+├── kafka-python-client/
+├── kafka-shadowtraffic/
+└── kafka-shadowtraffic-java/
 ```
 
 All skills follow the [Anthropic open standard for skills](https://resources.anthropic.com/hubfs/The-Complete-Guide-to-Building-Skill-for-Claude.pdf) with progressive disclosure: frontmatter with trigger phrases, negative triggers and categorised metadata; a `references/` directory for detailed lookup tables and test cases loaded on demand; success criteria with quantitative and qualitative metrics; concrete usage examples; troubleshooting for common errors; and validation gates between workflow steps.
@@ -83,7 +87,7 @@ This cross-tool [Skills CLI](https://github.com/vercel-labs/skills) (`npx skills
 
 The CLI auto-detects the agents you have installed (Cursor, Claude Code, Codex, OpenCode, Continue and [50+ others](https://github.com/vercel-labs/skills#supported-agents)) and copies the skills into the right per-agent folder.
 
-To install only a specific skill (the eight valid skill names are `kafka-topic-audit`, `kafka-consumer-lag`, `kafka-perf-review`, `kafka-schema-review`, `kafka-security-audit`, `kafka-connector-review`, `kafka-dlq-review`, `kafka-python-client`):
+To install only a specific skill (the ten valid skill names are `kafka-topic-audit`, `kafka-consumer-lag`, `kafka-perf-review`, `kafka-schema-review`, `kafka-security-audit`, `kafka-connector-review`, `kafka-dlq-review`, `kafka-python-client`, `kafka-shadowtraffic`, `kafka-shadowtraffic-java`):
 
 ```bash
 npx skills add lensesio/agentic-engineering-for-apache-kafka --skill kafka-topic-audit
