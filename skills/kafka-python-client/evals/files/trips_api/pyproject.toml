@@ -1,0 +1,13 @@
+[project]
+name = "trips-api"
+version = "0.1.0"
+description = "Minimal existing FastAPI service used as the fixture for the existing-fastapi-app-async-producer eval"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi",
+    "uvicorn[standard]",
+    "pydantic",
+]
+
+[tool.uv]
+package = false

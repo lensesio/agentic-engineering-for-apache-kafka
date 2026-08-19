@@ -139,7 +139,7 @@ Do not skip validation steps.
 
 **Solutions**:
 
-1. **Optimise SKILL.md size** - Move detailed docs to `references/`. Link to references instead of inlining. Keep SKILL.md under 5,000 words. All skills in this repo are currently under 1,300 words.
+1. **Optimise SKILL.md size** - Move detailed docs to `references/`. Link to references instead of inlining. Keep SKILL.md under 5,000 words. All skills in this repo are under 1,300 words.
 
 2. **Reduce enabled skills** - If you have many skills enabled, consider selective enablement. Only enable what you need for the current task.
 

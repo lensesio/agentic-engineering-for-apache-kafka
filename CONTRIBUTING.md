@@ -4,7 +4,7 @@ First, thank you for considering a contribution. This repository is a community 
 
 This document covers how to participate, whether you want to file an issue, propose a new Kafka skill, fix a typo or become a regular contributor.
 
-> **TL;DR.** Open an issue first for anything non-trivial, particularly a complex new skill. Fork the repo, work on a topic branch, follow the [Skill Structure Conventions](#skill-structure-conventions) if you are touching a skill, and open a PR with a clear description and a test case. We aim to triage within a few working days.
+> **TL;DR.** Open an issue first for anything non-trivial, particularly a complex new skill. Fork the repo, work on a topic branch, follow the [Skill structure conventions](#skill-structure-conventions) if you are touching a skill, and open a PR with a clear description and a test case. We aim to triage within a few working days.
 
 ## Table of contents
 
@@ -16,6 +16,7 @@ This document covers how to participate, whether you want to file an issue, prop
 - [Your first contribution](#your-first-contribution)
 - [Development workflow](#development-workflow)
 - [Skill structure conventions](#skill-structure-conventions)
+- [Evals](#evals)
 - [Testing your changes](#testing-your-changes)
 - [Pull request process](#pull-request-process)
 - [Commit and branch conventions](#commit-and-branch-conventions)
@@ -151,12 +152,42 @@ A single `SKILL.md` per skill serves both Cursor and Claude Code. Claude-Code-on
 
 For a fuller treatment, see the [Skill Structure Conventions](AGENTS.md#skill-structure-conventions) section in `AGENTS.md`.
 
+## Evals
+
+Alongside the human-run test plan in `references/test-cases.md`, skills can (and new skills should) ship a machine-gradeable eval suite in `skills/<name>/evals/`, following the [agentskills.io evaluating-skills format](https://agentskills.io/skill-creation/evaluating-skills). The reference implementation is [`skills/kafka-python-client/evals/`](skills/kafka-python-client/evals/).
+
+The layout:
+
+- **`evals/evals.json`** — the suite itself: for each test case an `id`, a `name`, a realistic `prompt` (the kind of thing a user would actually type — vary formality and detail across cases), a human-readable `expected_output`, optional input `files`, and a list of `expectations`. We use the `expectations` field name (rather than the `assertions` alias some tooling accepts) to line up with Anthropic's [`skill-creator`](https://github.com/anthropics/skills/tree/main/skills/skill-creator), which is the recommended way to run these suites.
+- **`evals/files/`** (optional) — input fixtures a test case needs, referenced by relative path from the skill directory. Keep fixtures minimal.
+- **No separate setup doc.** The environment prerequisites `skill-creator` cannot infer are encoded where it actually reads them — the top-level `description` in `evals.json` (cluster bring-up command, Kafka MCP, `uv`, fresh-context requirement) plus each case's `prompt`/`expected_output`/`files` — so an agent running a benchmark has everything from `evals.json` alone, with no sidecar file to drift out of sync. Human run/install guidance lives here in this section.
+
+Conventions, informed by the agentskills.io guide and [OpenAI's eval-skills guidance](https://developers.openai.com/blog/eval-skills):
+
+1. **Target Lenses CE seed data.** Evals must run against an out-of-the-box local Lenses Community Edition with no bespoke seeding. This repo does not check in a `docker-compose.yml` — fetch the official one fresh from the [Lenses Community Edition page](https://lenses.io/community-edition) as part of the run (`curl -L https://lenses.io/preview -o docker-compose.yml && ACCEPT_EULA=true docker compose up -d --wait`), so evals always test against the current CE release rather than a copy that can drift. Default to the `nyc_yellow_taxi_trip_data` topic; use the other telemetry seed topics (`sea_vessel_position_reports`, `telecom_italia_data`, `backblaze_smart`) where they add distinct coverage.
+2. **Expectations must be objectively gradeable.** "The generated producer sets `enable.idempotence=true`" is checkable; "the output is production-ready" is not. Prefer checks a script or a fresh LLM grader can verify from the outputs alone, and require concrete evidence for a PASS. (The `evals[].expectations` array and the `grading.json` rows that grade them use the fields `text`/`passed`/`evidence`, matching `skill-creator`'s `eval-viewer`.)
+3. **Don't restate the skill's own wording.** Assert on observable outcomes (files produced, configs set, questions asked, live-cluster values echoed correctly), not on the skill's internal instructions.
+4. **Include at least one negative control** — a prompt that should *not* trigger the skill — to catch over-triggering.
+5. **Cover at least one edge case** where the skill must stop and ask rather than guess (missing schema, ambiguous topic).
+6. **Run with a baseline.** Each iteration runs every case twice in fresh contexts — with the skill and without (or against a snapshot of the previous skill version) — so the delta shows what the skill actually buys. Keep run artifacts in a `<skill>-workspace/` directory (gitignored) or outside the repo entirely; only `evals/` itself is part of the published payload.
+7. **Run the suites with `skill-creator`.** The recommended runner is Anthropic's [`skill-creator`](https://github.com/anthropics/skills/tree/main/skills/skill-creator) skill, which spawns the fresh per-run contexts, grades every `expectation`, and aggregates `benchmark.json` for you. It is a development tool, not part of the published payload — install it at project scope in the gitignored `.claude/skills/skill-creator/` (never under the shipped `skills/` tree or a committed `.cursor/skills/` tree). The install snippet:
+
+   ```bash
+   git clone --depth 1 --filter=blob:none --sparse https://github.com/anthropics/skills /tmp/anthropic-skills
+   git -C /tmp/anthropic-skills sparse-checkout set skills/skill-creator
+   mkdir -p .claude/skills && cp -R /tmp/anthropic-skills/skills/skill-creator .claude/skills/skill-creator
+   ```
+
+   Then, from a Claude Code session at the repo root, ask: *"Use skill-creator to run the evals in `skills/kafka-python-client/evals/evals.json` against my local Lenses CE, with a with-skill vs without-skill baseline."*
+8. **Keep evals and `references/test-cases.md` aligned.** The test-cases file remains the human-readable test plan; the evals automate it. Changing skill behaviour means updating both.
+
 ## Testing your changes
 
 There is no unit test runner for skill content itself, so we rely on a few lightweight checks. Please run through these before opening a PR:
 
 1. **Trigger tests.** In a session with the skill loaded, ask the questions listed in `references/test-cases.md`. Verify that "should trigger" prompts load the skill and "should not trigger" prompts do not.
 2. **Functional tests.** Walk through at least the primary Given/When/Then scenario. Verify the agent follows the workflow steps, calls the expected MCP tools, and produces output in the documented shape.
+   If the skill ships an eval suite (see [Evals](#evals)), run at least the primary eval case with the skill against a local Lenses CE (via `skill-creator`, or by hand) and check its expectations pass.
 3. **Self-check via the agent.** Ask Claude (or Cursor's agent): *"When would you use the `<skill-name>` skill?"* The answer should match the description. If not, the description needs more specific trigger phrases.
 4. **Cross-tool sanity.** Verify the skill in both Cursor and Claude Code. If you only have access to one, say so in the PR and a maintainer will verify the other.
 5. **Skills CLI sanity** (optional but encouraged). From a clean directory, run `npx skills add lensesio/agentic-engineering-for-apache-kafka --list` against your branch's fork to confirm the new skill is discovered, then `npx skills add … --skill <name> -y` to confirm it installs cleanly into a per-agent folder. This catches `skills` array typos in the marketplace manifests early.

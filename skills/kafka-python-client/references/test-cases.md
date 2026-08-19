@@ -2,6 +2,8 @@
 
 Test cases for validating skill triggering, functional correctness and performance. Based on Anthropic's skill testing guide.
 
+> **Automated evals:** a machine-gradeable eval suite covering the core paths below (default-topic scaffold, implicit triggering, no-schema hard stop, existing-app integration, negative control) lives in [`../evals/evals.json`](../evals/evals.json), designed to run against out-of-the-box Lenses CE seed data. See [CONTRIBUTING.md](../../../CONTRIBUTING.md#evals) for how to run it; the suite's prerequisites are encoded in the eval `description` itself. Keep the two in sync when skill behaviour changes.
+
 ## Triggering Tests
 
 ### Should Trigger
