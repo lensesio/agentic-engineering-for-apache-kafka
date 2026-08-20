@@ -8,7 +8,7 @@
       "prompt": "Use the kafka-python-client skill to scaffold a Python producer and consumer for the nyc_yellow_taxi_trip_data topic on my local Lenses CE in the 'demo' environment. Put the project in ./taxi-trips/. I pre-confirm your discovery recap and any sensible defaults, but call out anything surprising in the recap before you generate.",
       "expected_output": "The skill announces itself, discovers the topic via the attached Kafka MCP (5 partitions, RF=1, Avro value schema with 19 required fields), flags in the recap that the registered schema is Avro while the skill scaffolds JSON-Schema-backed clients, converts the Avro schema to JSON Schema as the user pre-confirmed sensible defaults, then generates the full uv-managed 8-file project and runs the tests.",
       "expectations": [
-        "The first reply opens with: Running the kafka-python-client skill to scaffold this project.",
+        "The first reply announces it is running the kafka-python-client skill.",
         "The discovery recap reports 5 partitions and replication factor 1 for nyc_yellow_taxi_trip_data, matching the live cluster rather than invented values",
         "The recap explicitly states the registered value schema is Avro and that the skill targets JSON Schema, and names the conversion decision before any file is written",
         "The recap is presented before any project file is created",
