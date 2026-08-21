@@ -18,3 +18,10 @@ Thumbs.db
 .env
 .env.*
 !.env.example
+
+# Eval run workspaces (see CONTRIBUTING.md#evals)
+*-workspace/
+
+# Lenses CE compose file — fetched on demand from https://lenses.io/community-edition,
+# never checked in (see CONTRIBUTING.md#evals)
+docker-compose.yml

@@ -162,10 +162,11 @@ dev = [
     "pytest-asyncio",
 ]
 
-[build-system]
-requires = ["hatchling"]
-build-backend = "hatchling.build"
+[tool.uv]
+package = false
 ```
+
+Because the scaffold is a flat set of `.py` files (an application, not an importable library), set `[tool.uv] package = false` so `uv sync` treats the project as an app and does not try to build and install it. A bare `[build-system]` hatchling block fails on this layout with an "unable to determine which files to ship" error.
 
 Every third-party package imported by `producer.py`, `consumer.py` or `common.py` must appear in `[project].dependencies`. Test-only packages (`pytest`, `pytest-asyncio`) belong in the `dev` dependency group, installed automatically by `uv sync` and excluded from production installs via `uv sync --no-dev`. Include `pytest-asyncio` because the consumer is always async. The async Schema Registry client imports `httpx` and `authlib` at runtime even though they aren't declared as `confluent-kafka` dependencies — list them explicitly.
 

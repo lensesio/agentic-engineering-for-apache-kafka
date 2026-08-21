@@ -27,7 +27,7 @@ skills/                               # Shared SKILL.md payload (Claude Code + C
 ├── kafka-security-audit/   (+ references/)
 ├── kafka-connector-review/ (+ references/)
 ├── kafka-dlq-review/       (+ references/)
-└── kafka-python-client/    (+ references/)
+└── kafka-python-client/    (+ references/, evals/)
 AGENTS.md                             # Agent memory (this file)
 README.md                             # Source of truth for end-user installation and usage
 CONTRIBUTING.md                       # How to add a new skill, conventions, release process
@@ -42,7 +42,7 @@ For Cursor, the same payload is exposed as a [Cursor plugin](https://cursor.com/
 
 For the cross-tool [Skills CLI](https://github.com/vercel-labs/skills), the same payload is also installable via `npx skills add lensesio/agentic-engineering-for-apache-kafka`, which works with Cursor, Claude Code, Codex, OpenCode, Continue and 50+ other agents from one command. Discovery is driven by the `skills` array in [.claude-plugin/marketplace.json](.claude-plugin/marketplace.json) per the [plugin-manifest discovery format](https://github.com/vercel-labs/skills#plugin-manifest-discovery), so the same array gates both the Claude Code marketplace and `npx skills`. The repo is auto-indexed at [skills.sh/lensesio/agentic-engineering-for-apache-kafka](https://skills.sh/lensesio/agentic-engineering-for-apache-kafka); no manual submission is needed.
 
-The published plugin payload deliberately stays narrow - just the eight Kafka skills and their `references/`. Hook and settings recipes (PostToolUse formatting, Stop-hook verification, pre-approved permissions, custom spinner verbs) belong in each consuming team's own `.claude/settings.json`, not in a portable skills plugin.
+The published plugin payload deliberately stays narrow - just the eight Kafka skills, their `references/` and their `evals/`. Hook and settings recipes (PostToolUse formatting, Stop-hook verification, pre-approved permissions, custom spinner verbs) belong in each consuming team's own `.claude/settings.json`, not in a portable skills plugin.
 
 ## Skill Structure Conventions
 
@@ -56,6 +56,7 @@ All skills follow the [Anthropic open standard](https://resources.anthropic.com/
 - Each skill includes a **Troubleshooting** section for common errors and edge cases
 - Skills are categorised as `workflow-automation` or `mcp-enhancement` in their metadata
 - Every skill has a `references/test-cases.md` with triggering tests (should/should not trigger), functional tests (Given/When/Then) and performance baselines
+- Skills can additionally ship a machine-gradeable eval suite in `evals/evals.json` (plus `evals/files/` fixtures) per the [agentskills.io evaluating-skills format](https://agentskills.io/skill-creation/evaluating-skills), designed to run against out-of-the-box Lenses CE seed data (default topic `nyc_yellow_taxi_trip_data`); `kafka-python-client` is the reference implementation and the convention is documented in [CONTRIBUTING.md](CONTRIBUTING.md#evals). Eval run artifacts live in gitignored `<skill>-workspace/` directories, never in the published payload
 - Each skill's metadata includes `approach` (problem-first or tool-first) and `patterns` (sequential-workflow, iterative-refinement, context-aware-selection, domain-intelligence)
 - Skills are portable across Claude.ai, Claude Code, Cursor and the API (`/v1/skills` endpoint)
 - General troubleshooting (upload errors, triggering issues, MCP connection failures, large context) is in `TROUBLESHOOTING.md` at the repo root; skill-specific troubleshooting is in each `SKILL.md`

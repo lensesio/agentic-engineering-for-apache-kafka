@@ -1,0 +1,94 @@
+{
+  "skill_name": "kafka-python-client",
+  "description": "Eval suite for the kafka-python-client skill, designed to run against an out-of-the-box local Lenses Community Edition instance fetched fresh from https://lenses.io/community-edition ('curl -L https://lenses.io/preview -o docker-compose.yml && ACCEPT_EULA=true docker compose up -d --wait' — this repo does not check in a docker-compose.yml, so an agent running these evals unattended must run that command itself before discovery) with its seed topics: nyc_yellow_taxi_trip_data (5 partitions, Avro value schema), sea_vessel_position_reports (3 partitions, Avro), telecom_italia_data (4 partitions, Avro), backblaze_smart (2 partitions, JSON, no registered schema). No bespoke fixtures or seeding are required beyond starting the compose stack with a Kafka MCP server attached. Contributors also need `uv` (https://docs.astral.sh/uv/) installed, since generated projects and the `trips_api` fixture are uv-managed and grading runs `uv sync` / `uv run pytest`. Every run must execute in a fresh, isolated agent context (a subagent or a brand-new session) with no state carried over from skill development; reusing a development session invalidates the run because the agent may recall instructions a real user never had.",
+  "evals": [
+    {
+      "id": 1,
+      "name": "explicit-default-topic-avro-detection",
+      "prompt": "Use the kafka-python-client skill to scaffold a Python producer and consumer for the nyc_yellow_taxi_trip_data topic on my local Lenses CE in the 'demo' environment. Put the project in ./taxi-trips/. I pre-confirm your discovery recap and any sensible defaults, but call out anything surprising in the recap before you generate.",
+      "expected_output": "The skill announces itself, discovers the topic via the attached Kafka MCP (5 partitions, RF=1, Avro value schema with 19 required fields), flags in the recap that the registered schema is Avro while the skill scaffolds JSON-Schema-backed clients, converts the Avro schema to JSON Schema as the user pre-confirmed sensible defaults, then generates the full uv-managed 8-file project and runs the tests.",
+      "expectations": [
+        "The first reply announces it is running the kafka-python-client skill.",
+        "The discovery recap reports 5 partitions and replication factor 1 for nyc_yellow_taxi_trip_data, matching the live cluster rather than invented values",
+        "The recap explicitly states the registered value schema is Avro and that the skill targets JSON Schema, and names the conversion decision before any file is written",
+        "The recap is presented before any project file is created",
+        "Exactly 8 files are generated: producer.py, consumer.py, common.py, schemas/value.schema.json, tests/test_project.py, .env.example, pyproject.toml, README.md - and no requirements.txt",
+        "schemas/value.schema.json is a JSON Schema document containing all 19 fields from the registered Avro schema (VendorID through total_amount) with matching types",
+        "pyproject.toml declares confluent-kafka[json,schema_registry] under [project].dependencies and pytest plus pytest-asyncio under [dependency-groups].dev",
+        "producer.py sets enable.idempotence=true and acks=all, and constructs the Producer once in main() rather than inside produce()",
+        "uv run pytest tests/ passes with zero failures",
+        ".env.example sets TOPIC=nyc_yellow_taxi_trip_data and a GROUP_ID that does not collide with existing consumer groups on the cluster"
+      ]
+    },
+    {
+      "id": 2,
+      "name": "implicit-vessel-telemetry-consumer",
+      "prompt": "I need a Python service that tails live vessel positions from our Kafka and prints each ship's coordinates as they arrive. Discover whatever you need from the cluster first - I pre-confirm your recap and defaults.",
+      "expected_output": "The skill triggers without being named, searches the cluster for vessel-related topics, discovers sea_vessel_position_reports (3 partitions, Avro key and value schemas), recaps the discovery including the async consumer default, then scaffolds the uv-managed project with an async AIOConsumer poll loop.",
+      "expectations": [
+        "The kafka-python-client skill is invoked even though the prompt never names it",
+        "The topic sea_vessel_position_reports is found via an MCP topic search (e.g. a datasets/topics listing filtered on a vessel-related keyword), not guessed or hallucinated",
+        "The discovery recap reports 3 partitions for the topic",
+        "The generated consumer uses the async consumer style (AIOConsumer or equivalent async poll loop), consistent with the skill's always-async consumer default",
+        "The recap is presented before any project file is created",
+        "No requirements.txt is generated; the project is uv-managed via pyproject.toml"
+      ]
+    },
+    {
+      "id": 3,
+      "name": "casual-producer-telecom-topic",
+      "prompt": "hey can you knock up a quick python producer that pushes test events into the telecom_italia_data topic on the demo cluster? nothing fancy. go with whatever you discover, i'm happy with defaults",
+      "expected_output": "Despite the casual phrasing the skill triggers, discovers telecom_italia_data (4 partitions, Avro schema) via MCP, recaps, and generates a production-shaped sync producer: idempotent, acks=all, keyed messages, graceful flush on shutdown - not a throwaway script.",
+      "expectations": [
+        "The kafka-python-client skill is invoked from the casual phrasing",
+        "The discovery recap reports 4 partitions for telecom_italia_data",
+        "The producer style defaults to the synchronous Producer since no async runtime signal is present in the prompt",
+        "The generated producer sets enable.idempotence=true and acks=all",
+        "The generated produce path passes an entity-derived key rather than sending keyless messages",
+        "The producer calls flush() in a finally block or equivalent graceful-shutdown path"
+      ]
+    },
+    {
+      "id": 4,
+      "name": "no-registered-schema-must-ask",
+      "prompt": "Scaffold a Python consumer for the backblaze_smart topic on my local Lenses CE in the 'demo' environment.",
+      "expected_output": "The skill discovers that backblaze_smart exists (2 partitions, JSON messages) but has no schema registered against backblaze_smart-value. Instead of inventing a schema, it stops and asks the user to choose: paste a schema, infer one from sample messages, or proceed schema-less with a warning that this is brittle. No project files are generated in this run.",
+      "expectations": [
+        "The skill discovers the backblaze_smart topic via MCP and reports it has no registered value schema",
+        "The run ends with a question to the user offering explicit options (provide a schema, infer from sample messages, or proceed schema-less)",
+        "The schema-less option is accompanied by a warning that it is brittle and a recommendation to register a schema",
+        "No schema is invented or fabricated on the user's behalf",
+        "No project files are written before the user answers",
+        "The run correctly produces no project files - an empty outputs/ is the passing result here, and the transcript of the question to the user is the evidence"
+      ]
+    },
+    {
+      "id": 5,
+      "name": "existing-fastapi-app-async-producer",
+      "prompt": "Add a Kafka producer to my FastAPI service in trips_api/main.py so that POST /trips publishes each trip to the nyc_yellow_taxi_trip_data topic. Keep my existing routes intact. Run `uv sync` in trips_api/ first so its dependencies are installed. I pre-confirm your recap and defaults.",
+      "expected_output": "The skill detects the async framework signal (FastAPI), selects AIOProducer, discovers the topic and its Avro schema via MCP (flagging the JSON Schema conversion), then edits the existing app rather than scaffolding a new project: producer created once in the lifespan startup, a produce helper that takes the producer as a parameter, and flush/close awaited on shutdown.",
+      "files": ["evals/files/trips_api/main.py", "evals/files/trips_api/pyproject.toml"],
+      "expectations": [
+        "The recap identifies FastAPI as an async runtime signal and selects the async producer style (AIOProducer) with the lifespan handler as the integration point",
+        "The existing trips_api/main.py is modified in place - no new standalone project directory is scaffolded",
+        "The existing GET /health route and its behaviour are preserved in the edited file",
+        "The producer is instantiated once at application startup (lifespan), not per request",
+        "Shutdown awaits a flush and close of the producer",
+        "Schema Registry access uses the async client (AsyncSchemaRegistryClient or equivalent) so registry calls do not block the event loop",
+        "Serializer construction passes schema_str and schema_registry_client as keyword arguments"
+      ]
+    },
+    {
+      "id": 6,
+      "name": "negative-control-consumer-lag",
+      "prompt": "Our consumers are lagging badly on nyc_yellow_taxi_trip_data - can you work out why?",
+      "expected_output": "The kafka-python-client skill does not trigger. This is a consumer-lag diagnosis request (kafka-consumer-lag territory), not a request to scaffold a Python client. No project is scaffolded and no client files are written.",
+      "expectations": [
+        "The kafka-python-client skill is not invoked and its opening announcement does not appear",
+        "No Python client project files (producer.py, consumer.py, pyproject.toml) are generated",
+        "The response addresses lag diagnosis (or hands off to a lag-analysis skill) rather than proposing to scaffold a new client",
+        "The run correctly produces no project files - an empty outputs/ is the passing result here, and the transcript is the evidence"
+      ]
+    }
+  ]
+}
